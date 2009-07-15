@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<TravelResponse xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TravelProposals>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">0</ID>
+      <DepartureDay xsi:type="xsd:int">15</DepartureDay>
+      <DepartureMonth xsi:type="xsd:int">7</DepartureMonth>
+      <DepartureYear xsi:type="xsd:int">2009</DepartureYear>
+
+      <DepartureTime xsi:type="xsd:string">16:59</DepartureTime>
+      <ArrivalTime xsi:type="xsd:string">17:16</ArrivalTime>
+      <TotalTravelTime xsi:type="xsd:string">00:17</TotalTravelTime>
+      <TravelStages>
+        <TravelStage>
+          <ID xsi:type="xsd:int">0</ID>
+          <DepartureStopId xsi:type="xsd:string">3010032</DepartureStopId>
+
+          <DepartureStopName xsi:type="xsd:string">Nationaltheatret (i Stortingsgt)</DepartureStopName>
+          <DepartureStopWalkingDistance xsi:type="xsd:int">0</DepartureStopWalkingDistance>
+          <DepartureTime xsi:type="xsd:string">16:59</DepartureTime>
+          <ArrivalStopId xsi:type="xsd:string">3010013</ArrivalStopId>
+          <ArrivalStopName xsi:type="xsd:string">Jernbanetorget (foran Oslo S)</ArrivalStopName>
+          <ArrivalStopWalkingDistance xsi:type="xsd:int">0</ArrivalStopWalkingDistance>
+
+          <ArrivalTime xsi:type="xsd:string">17:05</ArrivalTime>
+          <Destination xsi:type="xsd:string">Tonsenhagen</Destination>
+          <Line xsi:type="xsd:string">31</Line>
+          <TourID xsi:type="xsd:string">19163</TourID>
+          <TransportationID xsi:type="xsd:string">2</TransportationID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+
+          <TransportationValid xsi:type="xsd:boolean">true</TransportationValid>
+          <TravelTime xsi:type="xsd:string">00:06</TravelTime>
+          <WaitingTime xsi:type="xsd:string">00:00</WaitingTime>
+        </TravelStage>
+        <TravelStage>
+          <ID xsi:type="xsd:int">1</ID>
+          <DepartureStopId xsi:type="xsd:string">3010013</DepartureStopId>
+
+          <DepartureStopName xsi:type="xsd:string">Jernbanetorget (foran Oslo S)</DepartureStopName>
+          <DepartureStopWalkingDistance xsi:type="xsd:int">0</DepartureStopWalkingDistance>
+          <DepartureTime xsi:type="xsd:string">17:05</DepartureTime>
+          <ArrivalStopId xsi:type="xsd:string">3010011</ArrivalStopId>
+          <ArrivalStopName xsi:type="xsd:string">Jernbanetorget [T-bane]</ArrivalStopName>
+          <ArrivalStopWalkingDistance xsi:type="xsd:int">0</ArrivalStopWalkingDistance>
+
+          <ArrivalTime xsi:type="xsd:string">17:07</ArrivalTime>
+          <TransportationID xsi:type="xsd:string">G</TransportationID>
+          <TransportationName xsi:type="xsd:string">Gå</TransportationName>
+          <TransportationValid xsi:type="xsd:boolean">false</TransportationValid>
+          <TravelTime xsi:type="xsd:string">00:02</TravelTime>
+          <WaitingTime xsi:type="xsd:string">00:00</WaitingTime>
+
+        </TravelStage>
+        <TravelStage>
+          <ID xsi:type="xsd:int">2</ID>
+          <DepartureStopId xsi:type="xsd:string">3010011</DepartureStopId>
+          <DepartureStopName xsi:type="xsd:string">Jernbanetorget [T-bane]</DepartureStopName>
+          <DepartureStopWalkingDistance xsi:type="xsd:int">0</DepartureStopWalkingDistance>
+          <DepartureTime xsi:type="xsd:string">17:10</DepartureTime>
+
+          <ArrivalStopId xsi:type="xsd:string">3010200</ArrivalStopId>
+          <ArrivalStopName xsi:type="xsd:string">Majorstuen [T-bane]</ArrivalStopName>
+          <ArrivalStopWalkingDistance xsi:type="xsd:int">0</ArrivalStopWalkingDistance>
+          <ArrivalTime xsi:type="xsd:string">17:16</ArrivalTime>
+          <Destination xsi:type="xsd:string">Sognsvann</Destination>
+          <Line xsi:type="xsd:string">3</Line>
+
+          <TourID xsi:type="xsd:string">31191</TourID>
+          <TransportationID xsi:type="xsd:string">8</TransportationID>
+          <TransportationName xsi:type="xsd:string">T-bane</TransportationName>
+          <TransportationValid xsi:type="xsd:boolean">true</TransportationValid>
+          <TravelTime xsi:type="xsd:string">00:06</TravelTime>
+          <WaitingTime xsi:type="xsd:string">00:03</WaitingTime>
+
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+  </TravelProposals>
+  <TXMLErrors />
+</TravelResponse>
