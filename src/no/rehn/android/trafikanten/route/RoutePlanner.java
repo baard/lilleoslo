@@ -20,6 +20,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import android.util.Log;
+
 import uk.me.jstott.jcoord.LatLng;
 import uk.me.jstott.jcoord.UTMRef;
 
@@ -79,7 +81,7 @@ public class RoutePlanner {
     // Example:
     // http://www5.trafikanten.no/txml/?type=4&fromid=3010032&toid=3010200
     public List<TravelProposal> findTravelBetween(String fromStop, String toStop, Date departureAfter, int maxProposals) throws Exception {
-        String url = String.format(baseUrl + "?type=3&fromid=%s&toid=%s&depdate=%s&deptime=%s&proposals=%d", fromStop, toStop,
+        String url = String.format(baseUrl + "?type=4&fromid=%s&toid=%s&depdate=%s&deptime=%s&proposals=%d", fromStop, toStop,
                 dateFormat.format(departureAfter), timeFormat.format(departureAfter), maxProposals);
         return parseTravelProposals(openUrl(url));
     }
@@ -90,6 +92,7 @@ public class RoutePlanner {
 
     private InputStream openUrl(String url) throws Exception {
         HttpGet request = new HttpGet(url);
+        Log.i("fetch", url);
         HttpResponse response = client.execute(request);
         InputStream inputStream = response.getEntity().getContent();
         return inputStream;
@@ -201,7 +204,7 @@ public class RoutePlanner {
             } else if (stagePropertyName.equals("DepartureStopId")) {
                 stage.departureStopId = stageProperty.getFirstChild().getNodeValue();
             } else if (stagePropertyName.equals("DepartureStopName")) {
-                stage.DepartureStopName = stageProperty.getFirstChild().getNodeValue();
+                stage.departureStopName = stageProperty.getFirstChild().getNodeValue();
             } else if (stagePropertyName.equals("DepartureStopWalkingDistance")) {
                 stage.departureStopWalkingDistance = Integer.parseInt(stageProperty.getFirstChild().getNodeValue());
             } else if (stagePropertyName.equals("DepartureTime")) {
@@ -289,7 +292,7 @@ public class RoutePlanner {
     public static class TravelStage {
         public int id;
         public String departureStopId;
-        public String DepartureStopName;
+        public String departureStopName;
         public int departureStopWalkingDistance;
         public Calendar departureDate;
         public String arrivalStopId;
@@ -303,5 +306,10 @@ public class RoutePlanner {
         public String transportationName;
         public boolean transportationValid;
         public long waitingMinutes;
+        
+        @Override
+        public String toString() {
+            return departureStopName + " to " + arrivalStopName;
+        }
     }
 }

@@ -4,7 +4,7 @@
       android:versionCode="1"
       android:versionName="1.0.0">
     <application android:icon="@drawable/icon" android:label="@string/app_name">
-        <activity android:name=".TrafikantenActivity"
+        <activity android:name="no.rehn.android.trafikanten.TrafikantenActivity"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -12,7 +12,14 @@
             </intent-filter>
         </activity>
     <uses-library android:name="android.test.runner"></uses-library>
+<uses-library android:name="com.google.android.maps"></uses-library>
+<activity android:name="no.rehn.android.trafikanten.NavigateHomeActivity"></activity>
+<activity android:name="no.rehn.android.trafikanten.ConfigActivity"></activity>
 </application>
 <instrumentation android:targetPackage="no.rehn.android.trafikanten" android:label="unittest" android:name="android.test.InstrumentationTestRunner"></instrumentation>
 <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+<uses-permission android:name="android.permission.ACCESS_MOCK_LOCATION"></uses-permission>
 </manifest> 
