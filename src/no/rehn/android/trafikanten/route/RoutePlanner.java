@@ -1,6 +1,7 @@
 package no.rehn.android.trafikanten.route;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -20,11 +21,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import android.util.Log;
-
 import uk.me.jstott.jcoord.LatLng;
 import uk.me.jstott.jcoord.UTMRef;
+import android.util.Log;
 
+// maxproposals == 0 means no limit
 public class RoutePlanner {
     private static final int DEFAULT_MAX_PROPOSALS = 5;
     final String baseUrl = "http://www5.trafikanten.no/txml/";
@@ -33,6 +34,9 @@ public class RoutePlanner {
     final TimeZone serverTimeZone;
     final SimpleDateFormat dateFormat;
     final SimpleDateFormat timeFormat;
+    public static final String TRANSPORT_SUBWAY = "T-bane";
+    public static final String TRANSPORT_BUS = "Buss";
+    public static final String TRANSPORT_WALK = "Gå";
 
     public RoutePlanner() {
         serverTimeZone = TimeZone.getTimeZone("Europe/Oslo");
@@ -183,7 +187,7 @@ public class RoutePlanner {
                 NodeList stages = element.getElementsByTagName("TravelStage");
                 for (int j = 0; j < stages.getLength(); j++) {
                     TravelStage stage = parseTravelStage(stages.item(j));
-                    travelProposal.addStage(stage);
+                    travelProposal.stages.addLast(stage);
                 }
             }
         }
@@ -268,14 +272,6 @@ public class RoutePlanner {
         public Calendar arrivalDate;
         public LinkedList<TravelStage> stages = new LinkedList<TravelStage>();
 
-        public void addStage(TravelStage stage) {
-            stages.addLast(stage);
-        }
-
-        public void addPreStage(TravelStage stage) {
-            stages.addFirst(stage);
-        }
-
         public Date getArrival() {
             return stages.getLast().arrivalDate.getTime();
         }
@@ -295,9 +291,36 @@ public class RoutePlanner {
                 }
             }
         }
+
+        public void addPreStage(String departureStopName, String transportationName, int distanceInMinutes) {
+            TravelStage firstStage = stages.getFirst();
+            TravelStage stage = new TravelStage();
+            Calendar departure = (Calendar) firstStage.departureDate.clone();
+            departure.add(Calendar.MINUTE, -distanceInMinutes);
+            stage.departureDate = departure;
+            stage.departureStopName = departureStopName;
+            stage.arrivalStopName = firstStage.departureStopName;
+            stage.arrivalDate = firstStage.departureDate;
+            stage.transportationName = transportationName;
+            stages.addFirst(stage);
+        }
+
+        public void addPostStage(String arrivalStopName, String transportationName, int distanceInMinutes) {
+            TravelStage lastStage = stages.getLast();
+            TravelStage stage = new TravelStage();
+            Calendar arrival = (Calendar) lastStage.arrivalDate.clone();
+            arrival.add(Calendar.MINUTE, distanceInMinutes);
+            stage.arrivalDate = arrival;
+            stage.departureStopName = lastStage.departureStopName;
+            stage.arrivalStopName = arrivalStopName;
+            stage.departureDate = lastStage.arrivalDate;
+            stage.transportationName = transportationName;
+            stages.addLast(stage);
+        }
     }
 
-    public static class TravelStage {
+    public static class TravelStage implements Serializable {
+        private static final long serialVersionUID = 1L;
         public int id;
         public String departureStopId;
         public String departureStopName;

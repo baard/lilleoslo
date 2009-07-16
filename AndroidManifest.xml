@@ -13,7 +13,8 @@
         </activity>
     <uses-library android:name="android.test.runner"></uses-library>
 <uses-library android:name="com.google.android.maps"></uses-library>
-<activity android:name="no.rehn.android.trafikanten.NavigateHomeActivity" android:label="@string/navigate_home"></activity>
+<activity android:name="no.rehn.android.trafikanten.DirectionsActivity" android:label="@string/navigate_home"></activity>
+<activity android:name="no.rehn.android.trafikanten.StageDetailsActivity"></activity>
 <activity android:name="no.rehn.android.trafikanten.ConfigActivity"></activity>
 </application>
 <instrumentation android:targetPackage="no.rehn.android.trafikanten" android:label="unittest" android:name="android.test.InstrumentationTestRunner"></instrumentation>

@@ -105,7 +105,7 @@ public class TrafikantenActivity extends MapActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add("Take me home").setIcon(android.R.drawable.ic_menu_directions);
+        menu.add("I wanna go home!").setIcon(android.R.drawable.ic_menu_directions);
         menu.add("Config").setIcon(android.R.drawable.ic_menu_preferences);
         return true;
     }
@@ -113,11 +113,11 @@ public class TrafikantenActivity extends MapActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         CharSequence menuItem = item.getTitle();
-        if (menuItem.equals("Take me home")) {
+        if (menuItem.equals("I wanna go home!")) {
             if (goHomeOverlay.myLocation == null) {
                 Toast.makeText(this, "Your location is not found", Toast.LENGTH_LONG).show();
             } else {
-                Intent intent = new Intent(this, NavigateHomeActivity.class);
+                Intent intent = new Intent(this, DirectionsActivity.class);
                 intent.putExtra("from", goHomeOverlay.myLocation);
                 intent.putExtra("to", goHomeOverlay.home);
                 startActivity(intent);
