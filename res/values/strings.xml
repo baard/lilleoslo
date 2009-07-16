@@ -2,4 +2,5 @@
 <resources>
     <string name="hello">Hello World, TrafikantenActivity</string>
     <string name="app_name">Trafikanten</string>
+<string name="navigate_home">Your way home</string>
 </resources>

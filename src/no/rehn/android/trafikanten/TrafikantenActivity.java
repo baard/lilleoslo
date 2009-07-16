@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -21,6 +22,7 @@ import com.google.android.maps.Overlay;
 import com.google.android.maps.Projection;
 
 public class TrafikantenActivity extends MapActivity {
+    GoHomeOverlay goHomeOverlay;
     MapView mapView;
     TextView banner;
 
@@ -31,7 +33,7 @@ public class TrafikantenActivity extends MapActivity {
         setContentView(R.layout.main);
         banner = (TextView) findViewById(R.id.banner);
         mapView = (MapView) findViewById(R.id.mapView);
-        GoHomeOverlay goHomeOverlay = new GoHomeOverlay(this);
+        goHomeOverlay = new GoHomeOverlay(this);
         mapView.getOverlays().add(goHomeOverlay);
     }
 
@@ -63,6 +65,7 @@ public class TrafikantenActivity extends MapActivity {
             mapView.getController().zoomToSpan(
                     Math.abs(toGeoPoint(home).getLatitudeE6() - toGeoPoint(myLocation).getLatitudeE6()),
                     Math.abs(toGeoPoint(home).getLongitudeE6() - toGeoPoint(myLocation).getLongitudeE6()));
+            Toast.makeText(TrafikantenActivity.this, "Found your location!", Toast.LENGTH_SHORT).show();
         }
         
         public void onProviderDisabled(String provider) {
@@ -111,8 +114,14 @@ public class TrafikantenActivity extends MapActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         CharSequence menuItem = item.getTitle();
         if (menuItem.equals("Take me home")) {
-            Intent intent = new Intent(this, NavigateHomeActivity.class);
-            startActivity(intent);
+            if (goHomeOverlay.myLocation == null) {
+                Toast.makeText(this, "Your location is not found", Toast.LENGTH_LONG).show();
+            } else {
+                Intent intent = new Intent(this, NavigateHomeActivity.class);
+                intent.putExtra("from", goHomeOverlay.myLocation);
+                intent.putExtra("to", goHomeOverlay.home);
+                startActivity(intent);
+            }
         } else if (menuItem.equals("Config")) {
             Intent intent = new Intent(this, ConfigActivity.class);
             startActivity(intent);

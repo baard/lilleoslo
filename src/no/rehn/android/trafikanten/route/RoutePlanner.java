@@ -38,7 +38,7 @@ public class RoutePlanner {
         serverTimeZone = TimeZone.getTimeZone("Europe/Oslo");
         dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         dateFormat.setTimeZone(serverTimeZone);
-        timeFormat = new SimpleDateFormat("hh:mm");
+        timeFormat = new SimpleDateFormat("HH:mm");
         timeFormat.setTimeZone(serverTimeZone);
     }
 
@@ -261,15 +261,23 @@ public class RoutePlanner {
     }
 
     public static class TravelProposal {
-        static final int[] PROPAGATED_FIELDS = new int[] { Calendar.YEAR, Calendar.MONTH, Calendar.DATE, Calendar.HOUR,
+        static final int[] PROPAGATED_FIELDS = new int[] { Calendar.YEAR, Calendar.MONTH, Calendar.DATE, Calendar.HOUR_OF_DAY,
             Calendar.SECOND };
         public int id;
         public Calendar departureDate;
         public Calendar arrivalDate;
-        public List<TravelStage> stages = new LinkedList<TravelStage>();
+        public LinkedList<TravelStage> stages = new LinkedList<TravelStage>();
 
-        void addStage(TravelStage stage) {
-            stages.add(stage);
+        public void addStage(TravelStage stage) {
+            stages.addLast(stage);
+        }
+
+        public void addPreStage(TravelStage stage) {
+            stages.addFirst(stage);
+        }
+
+        public Date getArrival() {
+            return stages.getLast().arrivalDate.getTime();
         }
 
         void propagateDepartureDate() {
@@ -306,10 +314,5 @@ public class RoutePlanner {
         public String transportationName;
         public boolean transportationValid;
         public long waitingMinutes;
-        
-        @Override
-        public String toString() {
-            return departureStopName + " to " + arrivalStopName;
-        }
     }
 }
