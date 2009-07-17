@@ -2,6 +2,7 @@ package no.rehn.android.trafikanten.route;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -28,6 +29,9 @@ import android.util.Log;
 // maxproposals == 0 means no limit
 public class RoutePlanner {
     private static final int DEFAULT_MAX_PROPOSALS = 5;
+    // walks about 80 meters per minute (~5km/h)
+    static final int WALKING_METER_PER_MINUTE = 80;
+
     final String baseUrl = "http://www5.trafikanten.no/txml/";
     final HttpClient client = new DefaultHttpClient();
     final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -49,7 +53,7 @@ public class RoutePlanner {
     // Example:
     // http://www5.trafikanten.no/txml/?type=1&stopname=godlia&proposals=5
     public List<StopMatch> findStopByName(String stopName, int maxProposals) throws Exception {
-        String url = String.format(baseUrl + "?type=1&stopname=%s&proposals=%d", stopName, maxProposals);
+        String url = String.format(baseUrl + "?type=1&stopname=%s&proposals=%d", URLEncoder.encode(stopName), maxProposals);
         return parseStopMatches(openUrl(url));
     }
 
@@ -111,6 +115,7 @@ public class RoutePlanner {
         for (int i = 0; i < items.getLength(); i++) {
             matches.add(parseStopMatch(items.item(i)));
         }
+        Log.i("fetch", "Parsed stops: " + matches.size());
         return matches;
     }
 
@@ -148,6 +153,7 @@ public class RoutePlanner {
         for (int i = 0; i < items.getLength(); i++) {
             matches.add(parseTravelProposal(items.item(i)));
         }
+        Log.i("fetch", "Parsed travels: " + matches.size());
         return matches;
     }
 
@@ -259,8 +265,14 @@ public class RoutePlanner {
         public String fromId;
         public String stopName;
         public String district;
+        public UTMRef utmRef;
         public int xCoordinate;
         public int yCoordinate;
+        
+        public LatLng getLocation() {
+            // 32 is special for norway, 'V' is (64 > latitude) && (latitude >= 56)
+            return new UTMRef(xCoordinate, yCoordinate, 'V', 32).toLatLng();
+        }
         public int airDistance;
     }
 
@@ -292,31 +304,39 @@ public class RoutePlanner {
             }
         }
 
-        public void addPreStage(String departureStopName, String transportationName, int distanceInMinutes) {
+        public void addPreStage(String departureStopName, String transportationName, LatLng from, StopMatch arrivalStop) {
             TravelStage firstStage = stages.getFirst();
             TravelStage stage = new TravelStage();
             Calendar departure = (Calendar) firstStage.departureDate.clone();
-            departure.add(Calendar.MINUTE, -distanceInMinutes);
+            departure.add(Calendar.MINUTE, -minutesBetween(from, arrivalStop.getLocation()));
             stage.departureDate = departure;
             stage.departureStopName = departureStopName;
             stage.arrivalStopName = firstStage.departureStopName;
             stage.arrivalDate = firstStage.departureDate;
             stage.transportationName = transportationName;
+            stage.arrivalLocation = arrivalStop.getLocation();
+            stage.departureLocation= from;
             stages.addFirst(stage);
         }
 
-        public void addPostStage(String arrivalStopName, String transportationName, int distanceInMinutes) {
+        public void addPostStage(String arrivalStopName, String transportationName, LatLng to, StopMatch departureStop) {
             TravelStage lastStage = stages.getLast();
             TravelStage stage = new TravelStage();
             Calendar arrival = (Calendar) lastStage.arrivalDate.clone();
-            arrival.add(Calendar.MINUTE, distanceInMinutes);
+            arrival.add(Calendar.MINUTE, minutesBetween(departureStop.getLocation(), to));
             stage.arrivalDate = arrival;
             stage.departureStopName = lastStage.departureStopName;
             stage.arrivalStopName = arrivalStopName;
             stage.departureDate = lastStage.arrivalDate;
             stage.transportationName = transportationName;
+            stage.arrivalLocation = to;
+            stage.departureLocation= departureStop.getLocation();
             stages.addLast(stage);
         }
+    }
+    
+    static int getDistanceInMinutes(int meters) {
+        return meters / WALKING_METER_PER_MINUTE;
     }
 
     public static class TravelStage implements Serializable {
@@ -337,5 +357,16 @@ public class RoutePlanner {
         public String transportationName;
         public boolean transportationValid;
         public long waitingMinutes;
+        
+        public LatLng departureLocation;
+        public LatLng arrivalLocation;
+    }
+
+    static int minutesBetween(LatLng from, LatLng to) {
+        return getDistanceInMinutes((int) from.distance(to));
+    }
+
+    public int getMinutesBetween(LatLng from, LatLng to) {
+        return minutesBetween(from, to);
     }
 }

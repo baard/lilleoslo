@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import uk.me.jstott.jcoord.LatLng;
+
 import no.rehn.android.trafikanten.route.RoutePlanner;
 import no.rehn.android.trafikanten.route.RoutePlanner.StopMatch;
 import no.rehn.android.trafikanten.route.RoutePlanner.TravelProposal;
@@ -36,10 +38,8 @@ import android.widget.Toast;
 
 public class DirectionsActivity extends Activity {
     static final String LOG_CATEGORY = "directions";
-    static final int NEAREST_STOP_COUNT = 1; // revert to 10 for prod
+    static final int NEAREST_STOP_COUNT = 10; // revert to 10 for prod
     static final int MIN_PERMUTATIONS_TO_EVALUATE = 4;
-    // walks about 80 meters per minute (~5km/h)
-    static final int WALKING_METER_PER_MINUTE = 80;
 
     static final int MSG_INFO = 1;
     static final int MSG_PROGRESS = 2;
@@ -151,16 +151,20 @@ public class DirectionsActivity extends Activity {
         }
 
         TravelProposal createWalkingProposal() {
+            LatLng from = toLatLng(mFrom);
+            LatLng to = toLatLng(mTo);
             TravelProposal proposal = new TravelProposal();
             TravelStage walkingStage = new TravelStage();
             walkingStage.departureStopName = "Current location";
             walkingStage.arrivalStopName = "Final destination";
             walkingStage.departureDate = Calendar.getInstance();
             Calendar arrival = (Calendar) walkingStage.departureDate.clone();
-            int distance = getDistanceInMinutes((int) mFrom.distanceTo(mTo));
+            int distance = mPlanner.getMinutesBetween(from, to);
             arrival.add(Calendar.MINUTE, distance);
             walkingStage.arrivalDate = arrival;
             walkingStage.transportationName = RoutePlanner.TRANSPORT_WALK;
+            walkingStage.arrivalLocation = to;
+            walkingStage.departureLocation = from;
             proposal.stages.add(walkingStage);
             return proposal;
         }
@@ -193,16 +197,15 @@ public class DirectionsActivity extends Activity {
                 Log.i(LOG_CATEGORY, "Checking: " + permutation.mFrom.stopName + " to " + permutation.mTo.stopName);
                 mHandler.sendMessage(mHandler.obtainMessage(MSG_PROGRESS, permutationCount, totalPermutationCount));
 
-                int distanceToSource = getDistanceInMinutes(permutation.mFrom.airDistance);
+                int distanceToSource = mPlanner.getMinutesBetween(toLatLng(mFrom), permutation.mFrom.getLocation());
                 // adjust depart-time for distance to source
                 Date earliestDeparture = new Date(System.currentTimeMillis() + distanceToSource * 60 * 1000);
                 List<TravelProposal> travelProposals = mPlanner.findTravelBetween(permutation.mFrom.fromId,
                         permutation.mTo.fromId, earliestDeparture, 1);
                 if (!travelProposals.isEmpty()) {
                     TravelProposal proposal = travelProposals.get(0);
-                    proposal.addPreStage("Current location", RoutePlanner.TRANSPORT_WALK, distanceToSource);
-                    proposal.addPostStage("Final destination", RoutePlanner.TRANSPORT_WALK,
-                            getDistanceInMinutes(permutation.mTo.airDistance));
+                    proposal.addPreStage("Current location", RoutePlanner.TRANSPORT_WALK, toLatLng(mFrom), permutation.mFrom);
+                    proposal.addPostStage("Final destination", RoutePlanner.TRANSPORT_WALK, toLatLng(mTo), permutation.mTo);
                     proposals.add(proposal);
                     // last argument is not used
                     mHandler.sendMessage(mHandler.obtainMessage(MSG_ROUTE_FOUND, proposals.size(), 0));
@@ -228,9 +231,6 @@ public class DirectionsActivity extends Activity {
             return permutations;
         }
 
-        int getDistanceInMinutes(int meters) {
-            return meters / WALKING_METER_PER_MINUTE;
-        }
     }
 
     static class StopMatchPermutation implements Comparable<StopMatchPermutation> {
@@ -308,6 +308,10 @@ public class DirectionsActivity extends Activity {
         menu.add(Menu.NONE, MENU_PREVIOUS, Menu.NONE, "Previous route").setIcon(android.R.drawable.ic_media_previous);
         menu.add(Menu.NONE, MENU_NEXT, Menu.NONE, "Next route").setIcon(android.R.drawable.ic_media_next);
         return true;
+    }
+
+    static LatLng toLatLng(Location location) {
+        return new LatLng(location.getLatitude(), location.getLongitude());
     }
 
     @Override

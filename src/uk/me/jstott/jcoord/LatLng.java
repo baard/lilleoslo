@@ -1,5 +1,7 @@
 package uk.me.jstott.jcoord;
 
+import java.io.Serializable;
+
 /**
  * Class to represent a latitude/longitude pair.
  * 
@@ -11,9 +13,11 @@ package uk.me.jstott.jcoord;
  * @version 1.0
  * @since 1.0
  */
-public class LatLng {
+// BAARD ADDED SERIALIZATION
+public class LatLng implements Serializable {
+  private static final long serialVersionUID = 1L;
 
-  /**
+/**
    * Latitude in degrees.
    */
   private double lat;
