@@ -5,9 +5,11 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 
 import uk.me.jstott.jcoord.LatLng;
 
@@ -38,7 +40,8 @@ import android.widget.Toast;
 
 public class DirectionsActivity extends Activity {
     static final String LOG_CATEGORY = "directions";
-    static final int NEAREST_STOP_COUNT = 10; // revert to 10 for prod
+    // revert to 10 for prod
+    static final int NEAREST_STOP_COUNT = 8;
     static final int MIN_PERMUTATIONS_TO_EVALUATE = 4;
 
     static final int MSG_INFO = 1;
@@ -55,6 +58,14 @@ public class DirectionsActivity extends Activity {
     TravelStageAdapter mStageAdaptor;
     EarlyArrivalComparator mProposalComparator = new EarlyArrivalComparator();
     int mProposalIndex = 0;
+    
+    static {
+    	// mock the time
+    	GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("Europe/Oslo"));
+    	calendar.set(2009, Calendar.JULY, 30, 23, 0);
+    	Log.i(LOG_CATEGORY, "Setting time to: " + calendar);
+    	TimeUtils.setStaticTime(calendar.getTimeInMillis());
+    }
 
     Handler mHandler = new Handler() {
         @Override
@@ -108,7 +119,7 @@ public class DirectionsActivity extends Activity {
                 startActivity(stageDetails);
             }
         });
-        mProgressDialog = ProgressDialog.show(this, "Calculating routes..", "Finding stops", true, false);
+        mProgressDialog = ProgressDialog.show(this, "Calculating routes", "Locating stops...", true, false);
         new Thread() {
             @Override
             public void run() {
@@ -139,6 +150,7 @@ public class DirectionsActivity extends Activity {
             List<StopMatch> arrivalStops = getNearestStops(mTo);
 
             List<StopMatchPermutation> permutations = createPermutations(departureStops, arrivalStops);
+            Log.i(LOG_CATEGORY, "Found " + permutations.size() + " permutations");
 
             // check all possible routes
             List<TravelProposal> proposals = fetchProposals(permutations);
@@ -157,9 +169,9 @@ public class DirectionsActivity extends Activity {
             TravelStage walkingStage = new TravelStage();
             walkingStage.departureStopName = "Current location";
             walkingStage.arrivalStopName = "Final destination";
-            walkingStage.departureDate = Calendar.getInstance();
+            walkingStage.departureDate = TimeUtils.newCalendar();
             Calendar arrival = (Calendar) walkingStage.departureDate.clone();
-            int distance = mPlanner.getMinutesBetween(from, to);
+            int distance = RoutePlanner.getMinutesBetween(from, to);
             arrival.add(Calendar.MINUTE, distance);
             walkingStage.arrivalDate = arrival;
             walkingStage.transportationName = RoutePlanner.TRANSPORT_WALK;
@@ -172,12 +184,13 @@ public class DirectionsActivity extends Activity {
         List<StopMatch> getNearestStops(Location from) throws Exception {
             List<StopMatch> stops = mPlanner.findStopByLatLon(from.getLatitude(), from.getLongitude(),
                     NEAREST_STOP_COUNT);
+            Log.i(LOG_CATEGORY, "Stops near: " + from.getLatitude() + "," + from.getLongitude() + " was " + stops);
             // filter dead stops (no need to include them in the permutations)
             Iterator<StopMatch> it = stops.iterator();
             while (it.hasNext()) {
                 StopMatch stop = it.next();
                 // only get one proposal to check if the stop is dead
-                List<TravelProposal> travels = mPlanner.findTravelsFrom(stop.fromId, new Date(), 1);
+                List<TravelProposal> travels = mPlanner.findTravelsFrom(stop.fromId, new Date(TimeUtils.currentTimeMillis()), 1);
                 if (travels.isEmpty()) {
                     Log.i(LOG_CATEGORY, "Removing dead stop: " + stop.fromId);
                     it.remove();
@@ -197,9 +210,9 @@ public class DirectionsActivity extends Activity {
                 Log.i(LOG_CATEGORY, "Checking: " + permutation.mFrom.stopName + " to " + permutation.mTo.stopName);
                 mHandler.sendMessage(mHandler.obtainMessage(MSG_PROGRESS, permutationCount, totalPermutationCount));
 
-                int distanceToSource = mPlanner.getMinutesBetween(toLatLng(mFrom), permutation.mFrom.getLocation());
+                int distanceToSource = RoutePlanner.getMinutesBetween(toLatLng(mFrom), permutation.mFrom.getLocation());
                 // adjust depart-time for distance to source
-                Date earliestDeparture = new Date(System.currentTimeMillis() + distanceToSource * 60 * 1000);
+                Date earliestDeparture = new Date(TimeUtils.currentTimeMillis() + distanceToSource * 60 * 1000);
                 List<TravelProposal> travelProposals = mPlanner.findTravelBetween(permutation.mFrom.fromId,
                         permutation.mTo.fromId, earliestDeparture, 1);
                 if (!travelProposals.isEmpty()) {
@@ -278,7 +291,11 @@ public class DirectionsActivity extends Activity {
                 TextView route = (TextView) v.findViewById(R.id.route);
                 int iconResource = R.drawable.unknown_small;
                 if (o.transportationName.equals(RoutePlanner.TRANSPORT_WALK)) {
-                    route.setText("Walk (estimated time)");
+                	if (o.departureLocation != null && o.arrivalLocation != null) {
+                		route.setText(String.format("Walk %.1fkm (estimated)", o.departureLocation.distance(o.arrivalLocation)));
+                	} else {
+                		route.setText("Walk (estimated)");
+                	}
                     iconResource = R.drawable.walk_small;
                 } else {
                     route.setText(String.format("%s %s - %s", o.transportationName, o.line, o.destination));

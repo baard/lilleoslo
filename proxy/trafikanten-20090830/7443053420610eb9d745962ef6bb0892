@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<TravelResponse xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TravelProposals>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">1</ID>
+      <DepartureTime xsi:type="xsd:string">23:10</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Grorud T</Destination>
+          <Line xsi:type="xsd:string">79</Line>
+          <TourID xsi:type="xsd:string">42808</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">2</ID>
+      <DepartureTime xsi:type="xsd:string">23:14</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Helsfyr T</Destination>
+          <Line xsi:type="xsd:string">76</Line>
+          <TourID xsi:type="xsd:string">20757</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">3</ID>
+      <DepartureTime xsi:type="xsd:string">23:17</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Holmlia stasjon</Destination>
+          <Line xsi:type="xsd:string">79</Line>
+          <TourID xsi:type="xsd:string">42682</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">4</ID>
+      <DepartureTime xsi:type="xsd:string">23:18</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Hauketo stasjon</Destination>
+          <Line xsi:type="xsd:string">76</Line>
+          <TourID xsi:type="xsd:string">20713</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">5</ID>
+      <DepartureTime xsi:type="xsd:string">23:40</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Grorud T</Destination>
+          <Line xsi:type="xsd:string">79</Line>
+          <TourID xsi:type="xsd:string">42809</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">6</ID>
+      <DepartureTime xsi:type="xsd:string">23:44</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Helsfyr T</Destination>
+          <Line xsi:type="xsd:string">76</Line>
+          <TourID xsi:type="xsd:string">20758</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">7</ID>
+      <DepartureTime xsi:type="xsd:string">23:47</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Holmlia stasjon</Destination>
+          <Line xsi:type="xsd:string">79</Line>
+          <TourID xsi:type="xsd:string">42683</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">8</ID>
+      <DepartureTime xsi:type="xsd:string">23:48</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Hauketo stasjon</Destination>
+          <Line xsi:type="xsd:string">76</Line>
+          <TourID xsi:type="xsd:string">20712</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">9</ID>
+      <DepartureTime xsi:type="xsd:string">00:10</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Grorud T</Destination>
+          <Line xsi:type="xsd:string">79</Line>
+          <TourID xsi:type="xsd:string">42810</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">10</ID>
+      <DepartureTime xsi:type="xsd:string">00:17</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Holmlia stasjon</Destination>
+          <Line xsi:type="xsd:string">79</Line>
+          <TourID xsi:type="xsd:string">42684</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">11</ID>
+      <DepartureTime xsi:type="xsd:string">00:18</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Mortensrud T</Destination>
+          <Line xsi:type="xsd:string">76</Line>
+          <TourID xsi:type="xsd:string">20742</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+  </TravelProposals>
+  <TXMLErrors />
+</TravelResponse>

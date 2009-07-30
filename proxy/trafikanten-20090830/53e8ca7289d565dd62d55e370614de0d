@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<TravelResponse xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TravelProposals>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">1</ID>
+      <DepartureTime xsi:type="xsd:string">23:01</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Majorstuen</Destination>
+          <Line xsi:type="xsd:string">1B</Line>
+          <TourID xsi:type="xsd:string">21028</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">2</ID>
+      <DepartureTime xsi:type="xsd:string">23:05</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Frognerseteren</Destination>
+          <Line xsi:type="xsd:string">1B</Line>
+          <TourID xsi:type="xsd:string">20961</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">3</ID>
+      <DepartureTime xsi:type="xsd:string">23:07</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Lillevann</Destination>
+          <Line xsi:type="xsd:string">1C</Line>
+          <TourID xsi:type="xsd:string">21371</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">4</ID>
+      <DepartureTime xsi:type="xsd:string">23:31</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Majorstuen</Destination>
+          <Line xsi:type="xsd:string">1B</Line>
+          <TourID xsi:type="xsd:string">21029</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">5</ID>
+      <DepartureTime xsi:type="xsd:string">23:35</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Frognerseteren</Destination>
+          <Line xsi:type="xsd:string">1B</Line>
+          <TourID xsi:type="xsd:string">20962</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">6</ID>
+      <DepartureTime xsi:type="xsd:string">23:37</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Lillevann</Destination>
+          <Line xsi:type="xsd:string">1C</Line>
+          <TourID xsi:type="xsd:string">21372</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">7</ID>
+      <DepartureTime xsi:type="xsd:string">00:01</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Majorstuen</Destination>
+          <Line xsi:type="xsd:string">1B</Line>
+          <TourID xsi:type="xsd:string">21030</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">8</ID>
+      <DepartureTime xsi:type="xsd:string">00:05</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Frognerseteren</Destination>
+          <Line xsi:type="xsd:string">1B</Line>
+          <TourID xsi:type="xsd:string">20963</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">9</ID>
+      <DepartureTime xsi:type="xsd:string">00:07</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Lillevann</Destination>
+          <Line xsi:type="xsd:string">1C</Line>
+          <TourID xsi:type="xsd:string">21373</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">10</ID>
+      <DepartureTime xsi:type="xsd:string">00:31</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Majorstuen</Destination>
+          <Line xsi:type="xsd:string">1B</Line>
+          <TourID xsi:type="xsd:string">21031</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">11</ID>
+      <DepartureTime xsi:type="xsd:string">00:35</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Frognerseteren</Destination>
+          <Line xsi:type="xsd:string">1B</Line>
+          <TourID xsi:type="xsd:string">20964</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">12</ID>
+      <DepartureTime xsi:type="xsd:string">00:37</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Lillevann</Destination>
+          <Line xsi:type="xsd:string">1C</Line>
+          <TourID xsi:type="xsd:string">21374</TourID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+  </TravelProposals>
+  <TXMLErrors />
+</TravelResponse>

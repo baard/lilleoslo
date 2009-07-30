@@ -1,0 +1,40 @@
+RELEASE:
+Your key is:
+
+0-AUdpVltjQq-TQnGuHD3S-rp4sA_q5QV5-Zpgg
+
+This key is good for all apps signed with your certificate whose fingerprint is:
+
+A3:04:F9:D9:41:12:C2:5E:A4:02:7F:A3:D9:FF:4B:F1
+
+Here is an example xml layout to get you started on your way to mapping glory:
+
+              <com.google.android.maps.MapView
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent"
+                 android:apiKey="0-AUdpVltjQq-TQnGuHD3S-rp4sA_q5QV5-Zpgg"
+                 />
+            
+
+Check out the API documentation for more information.
+
+
+DEBUG:
+Your key is:
+
+0-AUdpVltjQqi5ypQDAS2hz_OOK8-J-8wjEnsdw
+
+This key is good for all apps signed with your certificate whose fingerprint is:
+
+A8:2C:75:CB:87:CB:D1:BD:34:23:DC:B5:5A:BA:EE:B5
+
+Here is an example xml layout to get you started on your way to mapping glory:
+
+              <com.google.android.maps.MapView
+                 android:layout_width="fill_parent"
+                 android:layout_height="fill_parent"
+                 android:apiKey="0-AUdpVltjQqi5ypQDAS2hz_OOK8-J-8wjEnsdw"
+                 />
+            
+
+Check out the API documentation for more information.

@@ -13,6 +13,8 @@ import java.util.TimeZone;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import no.rehn.android.trafikanten.TimeUtils;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -28,19 +30,21 @@ import android.util.Log;
 
 // maxproposals == 0 means no limit
 public class RoutePlanner {
+	static final String LOG_CATEGORY = "route-planner";
     private static final int DEFAULT_MAX_PROPOSALS = 5;
     // walks about 80 meters per minute (~5km/h)
-    static final int WALKING_METER_PER_MINUTE = 80;
+    static final double WALKING_KM_PER_MINUTE = 5 / 60;
 
-    final String baseUrl = "http://www5.trafikanten.no/txml/";
-    final HttpClient client = new DefaultHttpClient();
+    final static String DEFAULT_URL = "http://www5.trafikanten.no/txml/"; 
+    final String baseUrl = "http://192.168.0.201:8080/txml/";
+    final HttpClient client;
     final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     final TimeZone serverTimeZone;
     final SimpleDateFormat dateFormat;
     final SimpleDateFormat timeFormat;
     public static final String TRANSPORT_SUBWAY = "T-bane";
     public static final String TRANSPORT_BUS = "Buss";
-    public static final String TRANSPORT_WALK = "Gå";
+    public static final String TRANSPORT_WALK = "G\u00E5";
 
     public RoutePlanner() {
         serverTimeZone = TimeZone.getTimeZone("Europe/Oslo");
@@ -48,6 +52,7 @@ public class RoutePlanner {
         dateFormat.setTimeZone(serverTimeZone);
         timeFormat = new SimpleDateFormat("HH:mm");
         timeFormat.setTimeZone(serverTimeZone);
+        client = new DefaultHttpClient();
     }
 
     // Example:
@@ -83,7 +88,7 @@ public class RoutePlanner {
     }
     
     public List<TravelProposal> findTravelsFrom(String stopName) throws Exception {
-        return findTravelsFrom(stopName, new Date(), DEFAULT_MAX_PROPOSALS);
+        return findTravelsFrom(stopName, TimeUtils.newDate(), DEFAULT_MAX_PROPOSALS);
     }
     
     // Example:
@@ -95,7 +100,7 @@ public class RoutePlanner {
     }
     
     public List<TravelProposal> findTravelBetween(String fromStop, String toStop) throws Exception {
-        return findTravelBetween(fromStop, toStop, new Date(), DEFAULT_MAX_PROPOSALS);
+        return findTravelBetween(fromStop, toStop, TimeUtils.newDate(), DEFAULT_MAX_PROPOSALS);
     }
 
     private InputStream openUrl(String url) throws Exception {
@@ -162,6 +167,7 @@ public class RoutePlanner {
         TravelProposal travelProposal = new TravelProposal();
         // defaults to today if not set
         travelProposal.departureDate = Calendar.getInstance(serverTimeZone);
+        travelProposal.departureDate.setTimeInMillis(TimeUtils.currentTimeMillis());
         // these should not default to anything
         travelProposal.departureDate.clear(Calendar.SECOND);
         travelProposal.departureDate.clear(Calendar.MILLISECOND);
@@ -308,11 +314,11 @@ public class RoutePlanner {
             TravelStage firstStage = stages.getFirst();
             TravelStage stage = new TravelStage();
             Calendar departure = (Calendar) firstStage.departureDate.clone();
-            departure.add(Calendar.MINUTE, -minutesBetween(from, arrivalStop.getLocation()));
+            departure.add(Calendar.MINUTE, -getMinutesBetween(from, arrivalStop.getLocation()));
             stage.departureDate = departure;
             stage.departureStopName = departureStopName;
             stage.arrivalStopName = firstStage.departureStopName;
-            stage.arrivalDate = firstStage.departureDate;
+            stage.arrivalDate = (Calendar) firstStage.departureDate.clone();
             stage.transportationName = transportationName;
             stage.arrivalLocation = arrivalStop.getLocation();
             stage.departureLocation= from;
@@ -323,7 +329,7 @@ public class RoutePlanner {
             TravelStage lastStage = stages.getLast();
             TravelStage stage = new TravelStage();
             Calendar arrival = (Calendar) lastStage.arrivalDate.clone();
-            arrival.add(Calendar.MINUTE, minutesBetween(departureStop.getLocation(), to));
+            arrival.add(Calendar.MINUTE, getMinutesBetween(departureStop.getLocation(), to));
             stage.arrivalDate = arrival;
             stage.departureStopName = lastStage.departureStopName;
             stage.arrivalStopName = arrivalStopName;
@@ -335,8 +341,8 @@ public class RoutePlanner {
         }
     }
     
-    static int getDistanceInMinutes(int meters) {
-        return meters / WALKING_METER_PER_MINUTE;
+    static int getDistanceInMinutes(double kilometers) {
+        return (int) (kilometers / WALKING_KM_PER_MINUTE);
     }
 
     public static class TravelStage implements Serializable {
@@ -362,11 +368,15 @@ public class RoutePlanner {
         public LatLng arrivalLocation;
     }
 
-    static int minutesBetween(LatLng from, LatLng to) {
-        return getDistanceInMinutes((int) from.distance(to));
+    public static int getMinutesBetween(LatLng from, LatLng to) {
+        double distance = from.distance(to);
+		int minutes = getDistanceInMinutes(distance);
+        Log.i(LOG_CATEGORY, distance + "km (" + minutes + "min) between " + format(from) + " and " + format(to));
+		return minutes;
     }
 
-    public int getMinutesBetween(LatLng from, LatLng to) {
-        return minutesBetween(from, to);
-    }
+	private static String format(LatLng from) {
+		String frm = from.getLat() + ", " + from.getLng();
+		return frm;
+	}
 }
