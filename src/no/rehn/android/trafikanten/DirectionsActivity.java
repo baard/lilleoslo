@@ -26,11 +26,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnKeyListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -58,6 +60,7 @@ public class DirectionsActivity extends Activity {
     TravelStageAdapter mStageAdaptor;
     EarlyArrivalComparator mProposalComparator = new EarlyArrivalComparator();
     int mProposalIndex = 0;
+    String mTitle;
     
     static {
     	// mock the time
@@ -65,6 +68,20 @@ public class DirectionsActivity extends Activity {
     	calendar.set(2009, Calendar.JULY, 30, 23, 0);
     	Log.i(LOG_CATEGORY, "Setting time to: " + calendar);
     	TimeUtils.setStaticTime(calendar.getTimeInMillis());
+    }
+
+    class ButtonHandler implements OnKeyListener {
+		public boolean onKey(View v, int keyCode, KeyEvent event) {
+			switch (keyCode) {
+    		case KeyEvent.KEYCODE_DPAD_LEFT:
+                next();
+    			break;
+    		case KeyEvent.KEYCODE_DPAD_RIGHT:
+                previous();
+    			break;
+    		}
+    		return true;
+		}
     }
 
     Handler mHandler = new Handler() {
@@ -93,9 +110,17 @@ public class DirectionsActivity extends Activity {
     void displayProposal() {
         if (mProposals != null && mProposals.size() > mProposalIndex) {
             mStageAdaptor.clear();
-            for (TravelStage stage : mProposals.get(mProposalIndex).stages) {
+            TravelProposal proposal = mProposals.get(mProposalIndex);
+			for (TravelStage stage : proposal.stages) {
                 mStageAdaptor.add(stage);
             }
+			long durationMillis = proposal.getArrival().getTime() - proposal.getDeparture().getTime();
+			Log.i(LOG_CATEGORY, "total travel " + durationMillis);
+			long seconds = durationMillis / 1000;
+			long minutes = seconds / 60;
+			long hours = minutes / 60;
+			minutes = minutes % 60;
+	        setTitle(String.format("%s - travel time %d:%02d", mTitle, hours, minutes));
         } else {
             Toast.makeText(DirectionsActivity.this, "No route was found", Toast.LENGTH_LONG).show();
         }
@@ -107,8 +132,11 @@ public class DirectionsActivity extends Activity {
         Bundle b = getIntent().getExtras();
         final Location from = b.getParcelable("from");
         final Location to = b.getParcelable("to");
+        mTitle = b.getString("title");
+        setTitle(mTitle);
         setContentView(R.layout.directions);
         ListView list = (ListView) findViewById(R.id.stages);
+        //list.setOnKeyListener(new ButtonHandler());
         mStageAdaptor = new TravelStageAdapter(this, R.layout.stage);
         list.setAdapter(mStageAdaptor);
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -289,21 +317,15 @@ public class DirectionsActivity extends Activity {
             // TODO when is this null?
             if (o != null) {
                 TextView route = (TextView) v.findViewById(R.id.route);
-                int iconResource = R.drawable.unknown_small;
+                int iconResource = getTransportationSymbol(o);
                 if (o.transportationName.equals(RoutePlanner.TRANSPORT_WALK)) {
                 	if (o.departureLocation != null && o.arrivalLocation != null) {
                 		route.setText(String.format("Walk %.1fkm (estimated)", o.departureLocation.distance(o.arrivalLocation)));
                 	} else {
                 		route.setText("Walk (estimated)");
                 	}
-                    iconResource = R.drawable.walk_small;
                 } else {
                     route.setText(String.format("%s %s - %s", o.transportationName, o.line, o.destination));
-                    if (o.transportationName.equals(RoutePlanner.TRANSPORT_SUBWAY)) {
-                        iconResource = R.drawable.subway_small;
-                    } else if (o.transportationName.equals(RoutePlanner.TRANSPORT_BUS)) {
-                        iconResource = R.drawable.bus_small;
-                    }
                 }
                 ImageView icon = (ImageView) v.findViewById(R.id.icon);
                 icon.setImageResource(iconResource);
@@ -318,6 +340,18 @@ public class DirectionsActivity extends Activity {
             }
             return v;
         }
+    }
+    
+    static int getTransportationSymbol(TravelStage stage) {
+        String transportationName = stage.transportationName;
+		if (transportationName.equals(RoutePlanner.TRANSPORT_WALK)) {
+        	return R.drawable.walk_small;
+        } else if (transportationName.equals(RoutePlanner.TRANSPORT_SUBWAY)) {
+        	return R.drawable.subway_small;
+        } else if (transportationName.equals(RoutePlanner.TRANSPORT_BUS)) {
+        	return R.drawable.bus_small;
+        }
+        return R.drawable.unknown_small;
     }
 
     @Override
@@ -344,13 +378,26 @@ public class DirectionsActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
         case MENU_NEXT:
-            mProposalIndex++;
+        	next();
             break;
         case MENU_PREVIOUS:
-            mProposalIndex--;
+        	previous();
             break;
         }
-        displayProposal();
         return true;
     }
+
+	private void next() {
+        if (mProposals.size() > mProposalIndex + 1) {
+        	mProposalIndex++;
+        	displayProposal();
+        }
+	}
+
+	private void previous() {
+        if (mProposalIndex > 0) {
+        	mProposalIndex--;
+        	displayProposal();
+        }
+	}
 }

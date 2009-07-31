@@ -33,7 +33,7 @@ public class RoutePlanner {
 	static final String LOG_CATEGORY = "route-planner";
     private static final int DEFAULT_MAX_PROPOSALS = 5;
     // walks about 80 meters per minute (~5km/h)
-    static final double WALKING_KM_PER_MINUTE = 5 / 60;
+    static final double WALKING_KM_PER_MINUTE = 5.0 / 60;
 
     final static String DEFAULT_URL = "http://www5.trafikanten.no/txml/"; 
     final String baseUrl = "http://192.168.0.201:8080/txml/";
@@ -166,12 +166,11 @@ public class RoutePlanner {
         NodeList properties = node.getChildNodes();
         TravelProposal travelProposal = new TravelProposal();
         // defaults to today if not set
-        travelProposal.departureDate = Calendar.getInstance(serverTimeZone);
-        travelProposal.departureDate.setTimeInMillis(TimeUtils.currentTimeMillis());
+        Calendar departureDate = Calendar.getInstance(serverTimeZone);
+        departureDate.setTimeInMillis(TimeUtils.currentTimeMillis());
         // these should not default to anything
-        travelProposal.departureDate.clear(Calendar.SECOND);
-        travelProposal.departureDate.clear(Calendar.MILLISECOND);
-        travelProposal.arrivalDate = createEmptyCalendar();
+        departureDate.clear(Calendar.SECOND);
+        departureDate.clear(Calendar.MILLISECOND);
         for (int i = 0; i < properties.getLength(); i++) {
             Node property = properties.item(i);
             String name = property.getNodeName();
@@ -179,39 +178,40 @@ public class RoutePlanner {
                 travelProposal.id = Integer.parseInt(property.getFirstChild().getNodeValue());
             } else if (name.equals("DepartureTime")) {
                 String[] hourMinutes = property.getFirstChild().getNodeValue().split(":");
-                travelProposal.departureDate.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hourMinutes[0]));
-                travelProposal.departureDate.set(Calendar.MINUTE, Integer.parseInt(hourMinutes[1]));
+                departureDate.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hourMinutes[0]));
+                departureDate.set(Calendar.MINUTE, Integer.parseInt(hourMinutes[1]));
             } else if (name.equals("DepartureDay")) {
-                travelProposal.departureDate.set(Calendar.DATE, Integer.parseInt(property.getFirstChild()
+                departureDate.set(Calendar.DATE, Integer.parseInt(property.getFirstChild()
                         .getNodeValue()));
             } else if (name.equals("DepartureMonth")) {
-                travelProposal.departureDate.set(Calendar.MONTH, Integer.parseInt(property.getFirstChild()
+                departureDate.set(Calendar.MONTH, Integer.parseInt(property.getFirstChild()
                         .getNodeValue()) - 1);
             } else if (name.equals("DepartureYear")) {
-                travelProposal.departureDate.set(Calendar.YEAR, Integer.parseInt(property.getFirstChild()
+                departureDate.set(Calendar.YEAR, Integer.parseInt(property.getFirstChild()
                         .getNodeValue()));
-            } else if (name.equals("ArrivalTime")) {
-                String[] hourMinutes = property.getFirstChild().getNodeValue().split(":");
-                travelProposal.arrivalDate.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hourMinutes[0]));
-                travelProposal.arrivalDate.set(Calendar.MINUTE, Integer.parseInt(hourMinutes[1]));
             } else if (name.equals("TravelStages")) {
                 Element element = (Element) property;
                 NodeList stages = element.getElementsByTagName("TravelStage");
                 for (int j = 0; j < stages.getLength(); j++) {
-                    TravelStage stage = parseTravelStage(stages.item(j));
+                    TravelStage stage = parseTravelStage(travelProposal, departureDate, stages.item(j));
                     travelProposal.stages.addLast(stage);
                 }
             }
         }
-        travelProposal.propagateDepartureDate();
+        //travelProposal.propagateDepartureDate();
         return travelProposal;
     }
 
-    private TravelStage parseTravelStage(Node property) {
+    private TravelStage parseTravelStage(TravelProposal travelProposal, Calendar departureDate, Node property) {
         NodeList stageProperties = property.getChildNodes();
         TravelStage stage = new TravelStage();
-        stage.departureDate = createEmptyCalendar();
-        stage.arrivalDate = createEmptyCalendar();
+        if (travelProposal.stages.isEmpty()) {
+        	// first stage
+        	stage.departureDate = (Calendar) departureDate.clone();
+        } else {
+        	stage.departureDate = (Calendar) travelProposal.stages.getLast().arrivalDate.clone();
+        }
+    	stage.arrivalDate = (Calendar) stage.departureDate.clone();
         for (int l = 0; l < stageProperties.getLength(); l++) {
             Node stageProperty = stageProperties.item(l);
             String stagePropertyName = stageProperty.getNodeName();
@@ -223,20 +223,12 @@ public class RoutePlanner {
                 stage.departureStopName = stageProperty.getFirstChild().getNodeValue();
             } else if (stagePropertyName.equals("DepartureStopWalkingDistance")) {
                 stage.departureStopWalkingDistance = Integer.parseInt(stageProperty.getFirstChild().getNodeValue());
-            } else if (stagePropertyName.equals("DepartureTime")) {
-                String[] hourMinutes = stageProperty.getFirstChild().getNodeValue().split(":");
-                stage.departureDate.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hourMinutes[0]));
-                stage.departureDate.set(Calendar.MINUTE, Integer.parseInt(hourMinutes[1]));
             } else if (stagePropertyName.equals("ArrivalStopId")) {
                 stage.arrivalStopId = stageProperty.getFirstChild().getNodeValue();
             } else if (stagePropertyName.equals("ArrivalStopName")) {
                 stage.arrivalStopName = stageProperty.getFirstChild().getNodeValue();
             } else if (stagePropertyName.equals("ArrivalStopWalkingDistance")) {
                 stage.arrivalStopWalkingDistance = Integer.parseInt(stageProperty.getFirstChild().getNodeValue());
-            } else if (stagePropertyName.equals("ArrivalTime")) {
-                String[] hourMinutes = stageProperty.getFirstChild().getNodeValue().split(":");
-                stage.arrivalDate.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hourMinutes[0]));
-                stage.arrivalDate.set(Calendar.MINUTE, Integer.parseInt(hourMinutes[1]));
             } else if (stagePropertyName.equals("Destination")) {
                 stage.destination = stageProperty.getFirstChild().getNodeValue();
             } else if (stagePropertyName.equals("Line")) {
@@ -249,21 +241,22 @@ public class RoutePlanner {
                 stage.transportationName = stageProperty.getFirstChild().getNodeValue();
             } else if (stagePropertyName.equals("TransportationValid")) {
                 stage.transportationValid = Boolean.parseBoolean(stageProperty.getFirstChild().getNodeValue());
+            } else if (stagePropertyName.equals("TravelTime")) {
+            	String[] hourMinutes = stageProperty.getFirstChild().getNodeValue().split(":");
+                int minutes = 0;
+                minutes += 60 * Integer.parseInt(hourMinutes[0]);
+                minutes += Integer.parseInt(hourMinutes[1]);
+                stage.arrivalDate.add(Calendar.MINUTE, minutes);
             } else if (stagePropertyName.equals("WaitingTime")) {
                 String[] hourMinutes = stageProperty.getFirstChild().getNodeValue().split(":");
                 int minutes = 0;
                 minutes += 60 * Integer.parseInt(hourMinutes[0]);
                 minutes += Integer.parseInt(hourMinutes[1]);
-                stage.waitingMinutes = minutes;
+                stage.departureDate.add(Calendar.MINUTE, minutes);
+                stage.arrivalDate.add(Calendar.MINUTE, minutes);
             }
         }
         return stage;
-    }
-
-    private Calendar createEmptyCalendar() {
-        Calendar calendar = Calendar.getInstance(serverTimeZone);
-        calendar.clear();
-        return calendar;
     }
 
     public static class StopMatch {
@@ -283,31 +276,15 @@ public class RoutePlanner {
     }
 
     public static class TravelProposal {
-        static final int[] PROPAGATED_FIELDS = new int[] { Calendar.YEAR, Calendar.MONTH, Calendar.DATE, Calendar.HOUR_OF_DAY,
-            Calendar.SECOND };
         public int id;
-        public Calendar departureDate;
-        public Calendar arrivalDate;
         public LinkedList<TravelStage> stages = new LinkedList<TravelStage>();
 
-        public Date getArrival() {
-            return stages.getLast().arrivalDate.getTime();
-        }
-
-        void propagateDepartureDate() {
-            copyUnsetFields(arrivalDate, departureDate);
-            for (TravelStage stage : stages) {
-                copyUnsetFields(stage.arrivalDate, departureDate);
-                copyUnsetFields(stage.departureDate, departureDate);
-            }
+        public Date getDeparture() {
+            return stages.getFirst().departureDate.getTime();
         }
         
-        private void copyUnsetFields(Calendar copyTo, Calendar copyFrom) {
-            for (int field : PROPAGATED_FIELDS) {
-                if (!copyTo.isSet(field)) {
-                    copyTo.set(field, copyFrom.get(field));
-                }
-            }
+        public Date getArrival() {
+            return stages.getLast().arrivalDate.getTime();
         }
 
         public void addPreStage(String departureStopName, String transportationName, LatLng from, StopMatch arrivalStop) {
@@ -333,7 +310,7 @@ public class RoutePlanner {
             stage.arrivalDate = arrival;
             stage.departureStopName = lastStage.departureStopName;
             stage.arrivalStopName = arrivalStopName;
-            stage.departureDate = lastStage.arrivalDate;
+            stage.departureDate = (Calendar) lastStage.arrivalDate.clone();
             stage.transportationName = transportationName;
             stage.arrivalLocation = to;
             stage.departureLocation= departureStop.getLocation();
@@ -362,7 +339,6 @@ public class RoutePlanner {
         public String transportationId;
         public String transportationName;
         public boolean transportationValid;
-        public long waitingMinutes;
         
         public LatLng departureLocation;
         public LatLng arrivalLocation;

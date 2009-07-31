@@ -1,41 +1,74 @@
 package no.rehn.android.trafikanten;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 import no.rehn.android.trafikanten.route.RoutePlanner;
 import no.rehn.android.trafikanten.route.RoutePlanner.StopMatch;
 import no.rehn.android.trafikanten.route.RoutePlanner.TravelStage;
 import uk.me.jstott.jcoord.LatLng;
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
-import com.google.android.maps.Projection;
+import com.google.android.maps.OverlayItem;
 
 public class StageDetailsActivity extends MapActivity {
+	static final String LOG_CATEGORY = "stage-detail";
     RoutePlanner mPlanner = new RoutePlanner();
     TravelStage mStage;
+	final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle extras = getIntent().getExtras();
         mStage = (TravelStage) extras.getSerializable("stage");
         findMissingLocations(mStage);
+        setTitle(String.format("%s to %s", mStage.departureStopName, mStage.arrivalStopName));
         setContentView(R.layout.stagedetail);
         if (mStage.arrivalLocation == null || mStage.departureLocation == null) {
             Toast.makeText(this, "Unknown locations", Toast.LENGTH_LONG).show();
         } else {
             MapView mapView = (MapView) findViewById(R.id.stageMap);
-            mapView.getOverlays().add(new StageOverlay(this, mapView));
+            
+            LinearLayout zoomLayout = (LinearLayout)findViewById(R.id.zoom);  
+            View zoomView = mapView.getZoomControls(); 
+     
+            zoomLayout.addView(zoomView, 
+                new LinearLayout.LayoutParams(
+                    LayoutParams.WRAP_CONTENT, 
+                    LayoutParams.WRAP_CONTENT)); 
+            mapView.displayZoomControls(true);
+            
+            mapView.setSatellite(true);
+            List<Overlay> overlays = mapView.getOverlays();
+            Drawable mFromSymbol = getResources().getDrawable(R.drawable.red_pin);
+            Drawable mToSymbol = getResources().getDrawable(R.drawable.green_pin);
+            GeoPoint from = toGeoPoint(mStage.departureLocation);
+			OverlayItem fromItem = new OverlayItem(from, mStage.departureStopName, null);
+            GeoPoint to = toGeoPoint(mStage.arrivalLocation);
+			OverlayItem toItem = new OverlayItem(to, mStage.arrivalStopName, null);
+            overlays.add(new SingleItemOverlay(this, mFromSymbol, fromItem));
+            overlays.add(new SingleItemOverlay(this, mToSymbol, toItem));
+            MyLocationOverlay myLocationOverlay = new MyLocationOverlay(this, mapView);
+            myLocationOverlay.enableMyLocation();
+			overlays.add(myLocationOverlay);
+			
+			int spanLat = Math.abs(from.getLatitudeE6() - to.getLatitudeE6());
+			int spanLng = Math.abs(from.getLongitudeE6() - to.getLongitudeE6());
+			MapController mapController = mapView.getController();
+			mapController.zoomToSpan(spanLat, spanLng);
+			mapController.animateTo(getMidPoint(from, to));
         }
     }
     
@@ -53,11 +86,12 @@ public class StageDetailsActivity extends MapActivity {
         try {
             List<StopMatch> stops = mPlanner.findStopByName(stopName, 1);
             if (stops.isEmpty()) {
+            	Log.w(LOG_CATEGORY, "zero stops found for: " + stopName);
                 return null;
             }
             return stops.get(0).getLocation();
         } catch (Exception e) {
-            Log.e("detail", "failed to find location: " + stopName, e);
+            Log.e(LOG_CATEGORY, "failed to find location: " + stopName, e);
             return null;
         }
     }
@@ -66,39 +100,11 @@ public class StageDetailsActivity extends MapActivity {
         return new GeoPoint((int) (location.getLat() * 1E6), (int) (location.getLng() * 1E6));
     }
     
-    class StageOverlay extends Overlay {
-        final GeoPoint mFrom;
-        final GeoPoint mTo;
-        final Paint mPaint = new Paint();
-        public StageOverlay(Context context, MapView mapView) {
-            MapController mapController = mapView.getController();
-            mFrom = toGeoPoint(mStage.departureLocation);
-            mTo = toGeoPoint(mStage.arrivalLocation);
-            int spanLat = Math.abs(mFrom.getLatitudeE6() - mTo.getLatitudeE6());
-            int spanLng = Math.abs(mFrom.getLongitudeE6() - mTo.getLongitudeE6());
-            mapController.zoomToSpan(spanLat, spanLng);
-            mapController.animateTo(getMidPoint(mFrom, mTo));
-        }
-        
-        private GeoPoint getMidPoint(GeoPoint a, GeoPoint b) {
-            int avgLat = (a.getLatitudeE6() + b.getLatitudeE6()) / 2;
-            int avgLng = (a.getLongitudeE6() + b.getLongitudeE6()) / 2;
-            return new GeoPoint(avgLat, avgLng);
-        }
-
-        @Override
-        public void draw(Canvas canvas, MapView mapView, boolean shadow) {
-            Projection projection = mapView.getProjection();
-            markPosition(projection, canvas, mFrom);
-            markPosition(projection, canvas, mTo);
-        }
-
-        void markPosition(Projection projection, Canvas canvas, GeoPoint point) {
-            Point projectedPoint = new Point();
-            projection.toPixels(point, projectedPoint);
-            canvas.drawCircle(projectedPoint.x, projectedPoint.y, 7.0f, mPaint);
-        }
-    }
+    private static GeoPoint getMidPoint(GeoPoint a, GeoPoint b) {
+		int avgLat = (a.getLatitudeE6() + b.getLatitudeE6()) / 2;
+		int avgLng = (a.getLongitudeE6() + b.getLongitudeE6()) / 2;
+		return new GeoPoint(avgLat, avgLng);
+	}
 
     @Override
     protected boolean isRouteDisplayed() {
