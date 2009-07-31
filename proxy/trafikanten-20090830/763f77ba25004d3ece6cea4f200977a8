@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<TravelResponse xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TravelProposals>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">0</ID>
+      <DepartureDay xsi:type="xsd:int">30</DepartureDay>
+      <DepartureMonth xsi:type="xsd:int">7</DepartureMonth>
+      <DepartureYear xsi:type="xsd:int">2009</DepartureYear>
+      <DepartureTime xsi:type="xsd:string">23:32</DepartureTime>
+      <ArrivalTime xsi:type="xsd:string">00:24</ArrivalTime>
+      <TotalTravelTime xsi:type="xsd:string">00:52</TotalTravelTime>
+      <TravelStages>
+        <TravelStage>
+          <ID xsi:type="xsd:int">0</ID>
+          <DepartureStopId xsi:type="xsd:string">3012349</DepartureStopId>
+          <DepartureStopName xsi:type="xsd:string">Svenstua (erstatningsbuss)</DepartureStopName>
+          <DepartureStopWalkingDistance xsi:type="xsd:int">0</DepartureStopWalkingDistance>
+          <DepartureTime xsi:type="xsd:string">23:32</DepartureTime>
+          <ArrivalStopId xsi:type="xsd:string">3010203</ArrivalStopId>
+          <ArrivalStopName xsi:type="xsd:string">Majorstuen (i Valkyriegata)</ArrivalStopName>
+          <ArrivalStopWalkingDistance xsi:type="xsd:int">0</ArrivalStopWalkingDistance>
+          <ArrivalTime xsi:type="xsd:string">23:43</ArrivalTime>
+          <Destination xsi:type="xsd:string">Majorstuen</Destination>
+          <Line xsi:type="xsd:string">1B</Line>
+          <TourID xsi:type="xsd:string">21019</TourID>
+          <TransportationID xsi:type="xsd:string">2</TransportationID>
+          <TransportationName xsi:type="xsd:string">Buss</TransportationName>
+          <TransportationValid xsi:type="xsd:boolean">true</TransportationValid>
+          <TravelTime xsi:type="xsd:string">00:11</TravelTime>
+          <WaitingTime xsi:type="xsd:string">00:00</WaitingTime>
+        </TravelStage>
+        <TravelStage>
+          <ID xsi:type="xsd:int">1</ID>
+          <DepartureStopId xsi:type="xsd:string">3010203</DepartureStopId>
+          <DepartureStopName xsi:type="xsd:string">Majorstuen (i Valkyriegata)</DepartureStopName>
+          <DepartureStopWalkingDistance xsi:type="xsd:int">0</DepartureStopWalkingDistance>
+          <DepartureTime xsi:type="xsd:string">23:43</DepartureTime>
+          <ArrivalStopId xsi:type="xsd:string">3010200</ArrivalStopId>
+          <ArrivalStopName xsi:type="xsd:string">Majorstuen [T-bane]</ArrivalStopName>
+          <ArrivalStopWalkingDistance xsi:type="xsd:int">0</ArrivalStopWalkingDistance>
+          <ArrivalTime xsi:type="xsd:string">23:46</ArrivalTime>
+          <TransportationID xsi:type="xsd:string">G</TransportationID>
+          <TransportationName xsi:type="xsd:string">Gå</TransportationName>
+          <TransportationValid xsi:type="xsd:boolean">false</TransportationValid>
+          <TravelTime xsi:type="xsd:string">00:03</TravelTime>
+          <WaitingTime xsi:type="xsd:string">00:00</WaitingTime>
+        </TravelStage>
+        <TravelStage>
+          <ID xsi:type="xsd:int">2</ID>
+          <DepartureStopId xsi:type="xsd:string">3010200</DepartureStopId>
+          <DepartureStopName xsi:type="xsd:string">Majorstuen [T-bane]</DepartureStopName>
+          <DepartureStopWalkingDistance xsi:type="xsd:int">0</DepartureStopWalkingDistance>
+          <DepartureTime xsi:type="xsd:string">00:05</DepartureTime>
+          <ArrivalStopId xsi:type="xsd:string">3011320</ArrivalStopId>
+          <ArrivalStopName xsi:type="xsd:string">Skøyenåsen [T-bane]</ArrivalStopName>
+          <ArrivalStopWalkingDistance xsi:type="xsd:int">0</ArrivalStopWalkingDistance>
+          <ArrivalTime xsi:type="xsd:string">00:24</ArrivalTime>
+          <Destination xsi:type="xsd:string">Mortensrud [T-bane]</Destination>
+          <Line xsi:type="xsd:string">3</Line>
+          <TourID xsi:type="xsd:string">35716</TourID>
+          <TransportationID xsi:type="xsd:string">8</TransportationID>
+          <TransportationName xsi:type="xsd:string">T-bane</TransportationName>
+          <TransportationValid xsi:type="xsd:boolean">true</TransportationValid>
+          <TravelTime xsi:type="xsd:string">00:19</TravelTime>
+          <WaitingTime xsi:type="xsd:string">00:19</WaitingTime>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+  </TravelProposals>
+  <TXMLErrors />
+</TravelResponse>

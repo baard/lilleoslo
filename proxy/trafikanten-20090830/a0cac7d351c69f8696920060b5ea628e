@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<TravelResponse xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <StopMatches>
+    <StopMatch>
+      <ID>0</ID>
+      <fromid>03011511</fromid>
+      <StopName xsi:type="xsd:string">Hellerud (i Tvetenveien)</StopName>
+      <District xsi:type="xsd:string">Oslo</District>
+      <XCoordinate xsi:type="xsd:int">602368</XCoordinate>
+      <YCoordinate xsi:type="xsd:int">6642881</YCoordinate>
+      <AirDistance xsi:type="xsd:int">0</AirDistance>
+    </StopMatch>
+  </StopMatches>
+  <TXMLErrors />
+</TravelResponse>

@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<TravelResponse xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <StopMatches>
+    <StopMatch>
+      <ID>0</ID>
+      <fromid>1372405</fromid>
+      <StopName xsi:type="xsd:string">Fosseberget</StopName>
+      <XCoordinate xsi:type="xsd:int">613559</XCoordinate>
+      <YCoordinate xsi:type="xsd:int">6589622</YCoordinate>
+      <AirDistance xsi:type="xsd:int">4830</AirDistance>
+    </StopMatch>
+    <StopMatch>
+      <ID>1</ID>
+      <fromid>1372455</fromid>
+      <StopName xsi:type="xsd:string">Engsand</StopName>
+      <XCoordinate xsi:type="xsd:int">612534</XCoordinate>
+      <YCoordinate xsi:type="xsd:int">6590444</YCoordinate>
+      <AirDistance xsi:type="xsd:int">4868</AirDistance>
+    </StopMatch>
+    <StopMatch>
+      <ID>2</ID>
+      <fromid>1372400</fromid>
+      <StopName xsi:type="xsd:string">Svinndal</StopName>
+      <XCoordinate xsi:type="xsd:int">614070</XCoordinate>
+      <YCoordinate xsi:type="xsd:int">6589117</YCoordinate>
+      <AirDistance xsi:type="xsd:int">4885</AirDistance>
+    </StopMatch>
+    <StopMatch>
+      <ID>3</ID>
+      <fromid>1372450</fromid>
+      <StopName xsi:type="xsd:string">Kjærnsrød</StopName>
+      <XCoordinate xsi:type="xsd:int">611875</XCoordinate>
+      <YCoordinate xsi:type="xsd:int">6591917</YCoordinate>
+      <AirDistance xsi:type="xsd:int">5972</AirDistance>
+    </StopMatch>
+    <StopMatch>
+      <ID>4</ID>
+      <fromid>1372390</fromid>
+      <StopName xsi:type="xsd:string">Vastvedt</StopName>
+      <XCoordinate xsi:type="xsd:int">615521</XCoordinate>
+      <YCoordinate xsi:type="xsd:int">6588907</YCoordinate>
+      <AirDistance xsi:type="xsd:int">6013</AirDistance>
+    </StopMatch>
+    <StopMatch>
+      <ID>5</ID>
+      <fromid>1351230</fromid>
+      <StopName xsi:type="xsd:string">Åsgård vest</StopName>
+      <XCoordinate xsi:type="xsd:int">609118</XCoordinate>
+      <YCoordinate xsi:type="xsd:int">6580124</YCoordinate>
+      <AirDistance xsi:type="xsd:int">6162</AirDistance>
+    </StopMatch>
+    <StopMatch>
+      <ID>6</ID>
+      <fromid>1351235</fromid>
+      <StopName xsi:type="xsd:string">Åsgård øst</StopName>
+      <XCoordinate xsi:type="xsd:int">609372</XCoordinate>
+      <YCoordinate xsi:type="xsd:int">6580070</YCoordinate>
+      <AirDistance xsi:type="xsd:int">6178</AirDistance>
+    </StopMatch>
+    <StopMatch>
+      <ID>7</ID>
+      <fromid>1351240</fromid>
+      <StopName xsi:type="xsd:string">Missingmyr</StopName>
+      <XCoordinate xsi:type="xsd:int">609843</XCoordinate>
+      <YCoordinate xsi:type="xsd:int">6580010</YCoordinate>
+      <AirDistance xsi:type="xsd:int">6197</AirDistance>
+    </StopMatch>
+  </StopMatches>
+  <TXMLErrors />
+</TravelResponse>

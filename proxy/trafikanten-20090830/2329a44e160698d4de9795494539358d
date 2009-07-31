@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<TravelResponse xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <TravelProposals>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">1</ID>
+      <DepartureTime xsi:type="xsd:string">23:11</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Sognsvann</Destination>
+          <Line xsi:type="xsd:string">3</Line>
+          <TourID xsi:type="xsd:string">35456</TourID>
+          <TransportationName xsi:type="xsd:string">T-bane</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">2</ID>
+      <DepartureTime xsi:type="xsd:string">23:24</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Mortensrud [T-bane]</Destination>
+          <Line xsi:type="xsd:string">3</Line>
+          <TourID xsi:type="xsd:string">35720</TourID>
+          <TransportationName xsi:type="xsd:string">T-bane</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">3</ID>
+      <DepartureTime xsi:type="xsd:string">23:41</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Sognsvann</Destination>
+          <Line xsi:type="xsd:string">3</Line>
+          <TourID xsi:type="xsd:string">35454</TourID>
+          <TransportationName xsi:type="xsd:string">T-bane</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">4</ID>
+      <DepartureTime xsi:type="xsd:string">23:54</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Mortensrud [T-bane]</Destination>
+          <Line xsi:type="xsd:string">3</Line>
+          <TourID xsi:type="xsd:string">35718</TourID>
+          <TransportationName xsi:type="xsd:string">T-bane</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">5</ID>
+      <DepartureTime xsi:type="xsd:string">00:11</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Sognsvann</Destination>
+          <Line xsi:type="xsd:string">3</Line>
+          <TourID xsi:type="xsd:string">35452</TourID>
+          <TransportationName xsi:type="xsd:string">T-bane</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">6</ID>
+      <DepartureTime xsi:type="xsd:string">00:24</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Mortensrud [T-bane]</Destination>
+          <Line xsi:type="xsd:string">3</Line>
+          <TourID xsi:type="xsd:string">35716</TourID>
+          <TransportationName xsi:type="xsd:string">T-bane</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">7</ID>
+      <DepartureTime xsi:type="xsd:string">00:41</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Stortinget [T-bane]</Destination>
+          <Line xsi:type="xsd:string">3</Line>
+          <TourID xsi:type="xsd:string">35911</TourID>
+          <TransportationName xsi:type="xsd:string">T-bane</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+    <TravelProposal>
+      <ID xsi:type="xsd:int">8</ID>
+      <DepartureTime xsi:type="xsd:string">00:54</DepartureTime>
+      <TravelStages>
+        <TravelStage>
+          <Destination xsi:type="xsd:string">Mortensrud [T-bane]</Destination>
+          <Line xsi:type="xsd:string">3</Line>
+          <TourID xsi:type="xsd:string">35714</TourID>
+          <TransportationName xsi:type="xsd:string">T-bane</TransportationName>
+        </TravelStage>
+      </TravelStages>
+    </TravelProposal>
+  </TravelProposals>
+  <TXMLErrors />
+</TravelResponse>
