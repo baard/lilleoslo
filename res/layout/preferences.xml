@@ -8,4 +8,14 @@
     <EditTextPreference
             android:key="my_lon"
             android:title="My longitude" />
+           
+    <CheckBoxPreference android:key="use_proxy"
+		android:title="Use HTTP proxy" /> 
+		<PreferenceScreen android:key="second_preferencescreen"
+			android:title="Proxy settings">
+			<EditTextPreference android:key="proxy_host"
+				android:title="Proxy host" />
+			<EditTextPreference android:key="proxy_port"
+				android:title="Proxy port" />
+		</PreferenceScreen>
 </PreferenceScreen> 

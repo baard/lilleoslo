@@ -5,3 +5,7 @@ http://home.hiwaay.net/~taylorc/toolbox/geography/geoutm.html
 Cached travel on 2009-07-30 23:00:
 From latitude: 59.96, longitude: 10.70 (Holmenkollen)
 To latitude: 59.9009047, longitude: 10.843648 (Oppsal)
+
+Start proxy with:
+$ ./quickcache.py -vb <iface> -l quickcache.log -d trafikanten-20090830/ \
+http://www5.trafikanten.no/txml/

@@ -51,9 +51,9 @@ class CacheHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.wfile.writelines(data)
 
 def trim_path(path):
-    # use regexp instead
-    path = path.replace('http://', '')
-    return path[path.index('/'):]
+#    path = path.replace('http://', '')
+#   return path[path.index('/'):]
+    return path.replace('.*://.*/', '')
 
 def make_cache_dir(path):
     if os.path.isdir(path):

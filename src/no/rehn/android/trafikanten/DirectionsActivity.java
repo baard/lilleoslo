@@ -1,5 +1,6 @@
 package no.rehn.android.trafikanten;
 
+import java.net.InetSocketAddress;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
@@ -21,10 +22,12 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -56,7 +59,7 @@ public class DirectionsActivity extends Activity {
 
     ProgressDialog mProgressDialog;
     List<TravelProposal> mProposals = Collections.emptyList();
-    RoutePlanner mPlanner = new RoutePlanner();
+    RoutePlanner mPlanner;
     TravelStageAdapter mStageAdaptor;
     EarlyArrivalComparator mProposalComparator = new EarlyArrivalComparator();
     int mProposalIndex = 0;
@@ -135,6 +138,7 @@ public class DirectionsActivity extends Activity {
         mTitle = b.getString("title");
         setTitle(mTitle);
         setContentView(R.layout.directions);
+        mPlanner = createRoutePlanner();
         ListView list = (ListView) findViewById(R.id.stages);
         //list.setOnKeyListener(new ButtonHandler());
         mStageAdaptor = new TravelStageAdapter(this, R.layout.stage);
@@ -161,6 +165,19 @@ public class DirectionsActivity extends Activity {
             }
         }.start();
     }
+
+	private RoutePlanner createRoutePlanner() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean useProxy = prefs.getBoolean("use_proxy", false);
+        if (!useProxy) {
+        	return new RoutePlanner();
+        } else {
+    		String host = prefs.getString("proxy_host", null);
+    		String port = prefs.getString("proxy_port", null);
+    		InetSocketAddress proxyAddress = new InetSocketAddress(host, Integer.parseInt(port));
+    		return new RoutePlanner(proxyAddress);
+        }
+	}
 
     class TravelProposalRequest {
         final Location mFrom;

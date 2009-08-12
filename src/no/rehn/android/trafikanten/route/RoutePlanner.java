@@ -2,7 +2,11 @@ package no.rehn.android.trafikanten.route;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.URL;
 import java.net.URLEncoder;
+import java.net.Proxy.Type;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -15,10 +19,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import no.rehn.android.trafikanten.TimeUtils;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -35,9 +35,7 @@ public class RoutePlanner {
     // walks about 80 meters per minute (~5km/h)
     static final double WALKING_KM_PER_MINUTE = 5.0 / 60;
 
-    final static String DEFAULT_URL = "http://www5.trafikanten.no/txml/"; 
-    final String baseUrl = "http://10.42.43.1:8080/txml/";
-    final HttpClient client;
+    final String baseUrl = "http://www5.trafikanten.no/txml/";
     final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     final TimeZone serverTimeZone;
     final SimpleDateFormat dateFormat;
@@ -45,14 +43,23 @@ public class RoutePlanner {
     public static final String TRANSPORT_SUBWAY = "T-bane";
     public static final String TRANSPORT_BUS = "Buss";
     public static final String TRANSPORT_WALK = "G\u00E5";
+    final Proxy mHttpProxy;
 
-    public RoutePlanner() {
+    public RoutePlanner(Proxy proxy) {
         serverTimeZone = TimeZone.getTimeZone("Europe/Oslo");
         dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         dateFormat.setTimeZone(serverTimeZone);
         timeFormat = new SimpleDateFormat("HH:mm");
         timeFormat.setTimeZone(serverTimeZone);
-        client = new DefaultHttpClient();
+        mHttpProxy = proxy;
+    }
+    
+    public RoutePlanner() {
+    	this(new Proxy(Type.DIRECT, null));
+    }
+    
+    public RoutePlanner(InetSocketAddress proxyAddress) {
+        this(new Proxy(Type.HTTP, proxyAddress));
     }
 
     // Example:
@@ -104,11 +111,8 @@ public class RoutePlanner {
     }
 
     private InputStream openUrl(String url) throws Exception {
-        HttpGet request = new HttpGet(url);
         Log.i("fetch", url);
-        HttpResponse response = client.execute(request);
-        InputStream inputStream = response.getEntity().getContent();
-        return inputStream;
+        return new URL(url).openConnection(mHttpProxy).getInputStream();
     }
 
     List<StopMatch> parseStopMatches(InputStream responseStream) throws Exception {
