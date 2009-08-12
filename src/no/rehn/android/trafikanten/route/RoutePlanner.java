@@ -36,7 +36,7 @@ public class RoutePlanner {
     static final double WALKING_KM_PER_MINUTE = 5.0 / 60;
 
     final static String DEFAULT_URL = "http://www5.trafikanten.no/txml/"; 
-    final String baseUrl = "http://192.168.0.201:8080/txml/";
+    final String baseUrl = "http://10.42.43.1:8080/txml/";
     final HttpClient client;
     final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     final TimeZone serverTimeZone;

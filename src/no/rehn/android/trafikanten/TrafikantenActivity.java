@@ -3,10 +3,13 @@ package no.rehn.android.trafikanten;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,8 +21,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class TrafikantenActivity extends Activity {
+	private static final int MENU_MOCK = 0;
+	private static final int MENU_CONFIG = 1;
+	private static final int REQUEST_CONFIG = 1;
 	DestinationsAdapter mDestinationsAdaptor;
 	Location mMyLocation;
+	MyLocationListener mLocationListener;
+	LocationManager mLocationService;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -29,7 +37,7 @@ public class TrafikantenActivity extends Activity {
 		ListView list = (ListView) findViewById(R.id.destinations);
 		mDestinationsAdaptor = new DestinationsAdapter(this,
 				R.layout.destination);
-		mDestinationsAdaptor.add(createDestination("Home", 59.90, 10.84));
+		mDestinationsAdaptor.add(createDestination("Home", 59.9009047, 10.843648));
 		mDestinationsAdaptor.add(createDestination("Work", 59.40, 10.94));
 		list.setAdapter(mDestinationsAdaptor);
 		list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -47,8 +55,20 @@ public class TrafikantenActivity extends Activity {
 			}
 		});
 		
-		LocationManager locationService = (LocationManager) getSystemService(LOCATION_SERVICE);
-		locationService.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, new MyLocationListener());
+		mLocationService = (LocationManager) getSystemService(LOCATION_SERVICE);
+		mLocationListener = new MyLocationListener();
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mLocationService.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, mLocationListener);	
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		mLocationService.removeUpdates(mLocationListener);
 	}
 	
 	private Destination createDestination(String title, double lat, double lon) {
@@ -120,14 +140,35 @@ public class TrafikantenActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add("Config").setIcon(android.R.drawable.ic_menu_preferences);
+		menu.add(0, MENU_CONFIG, 0, "Config").setIcon(android.R.drawable.ic_menu_preferences);
+		menu.add(0, MENU_MOCK, 0, "Mock location").setIcon(android.R.drawable.ic_menu_mylocation);
 		return true;
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == REQUEST_CONFIG) {
+			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+			String lat = prefs.getString("my_lat", "0.0");
+			String lon = prefs.getString("my_lon", "0.0");
+			Location location = new Location("MOCK");
+			location.setLatitude(Float.parseFloat(lat));
+			location.setLongitude(Float.parseFloat(lon));
+			mMyLocation = location;
+			mDestinationsAdaptor.notifyDataSetInvalidated();
+		}
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Intent intent = new Intent(this, ConfigActivity.class);
-		startActivity(intent);
-		return true;
+		switch (item.getItemId()) {
+		case MENU_CONFIG:
+			Intent intent = new Intent(this, ConfigActivity.class);
+			startActivityForResult(intent, REQUEST_CONFIG);
+			return true;
+		case MENU_MOCK:
+			return true;
+		}
+		return false;
 	}
 }

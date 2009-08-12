@@ -6,6 +6,9 @@ This module stores responses in a hashmap so that the same URL
 is never retrieved more than once.
 
 TODO Should implement a real HTTP 1.1 proxy and cache all headers.
+
+Jonathan Share
+Baard H. Rehn Johansen
 """
 
 from optparse import OptionParser

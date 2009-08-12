@@ -19,7 +19,7 @@ class SingleItemOverlay extends ItemizedOverlay<OverlayItem> {
 	
 	 @Override
 	protected boolean onTap(int i) {
-		Toast.makeText(mContext, mItem.getTitle(), Toast.LENGTH_LONG)
+		Toast.makeText(mContext, mItem.getTitle(), Toast.LENGTH_SHORT)
 				.show();
 		return true;
 	}  

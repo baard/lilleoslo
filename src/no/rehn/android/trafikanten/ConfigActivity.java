@@ -1,7 +1,13 @@
 package no.rehn.android.trafikanten;
 
-import android.app.Activity;
+import android.os.Bundle;
+import android.preference.PreferenceActivity;
 
 //TODO implement
-public class ConfigActivity extends Activity {
+public class ConfigActivity extends PreferenceActivity {
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		addPreferencesFromResource(R.layout.preferences);
+	}
 }

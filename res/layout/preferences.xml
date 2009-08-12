@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:key="first_preferencescreen">
+    <EditTextPreference
+            android:key="my_lat"
+            android:title="My latitude" />
+    <EditTextPreference
+            android:key="my_lon"
+            android:title="My longitude" />
+</PreferenceScreen> 
