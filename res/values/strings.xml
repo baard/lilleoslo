@@ -3,4 +3,12 @@
     <string name="hello">Hello World, TrafikantenActivity</string>
     <string name="app_name">Trafikanten</string>
 <string name="navigate_home">Directions</string>
+<string-array name="walking_speed"><item>Slow (3 km/h)</item>
+<item>Normal  (5 km/h)</item>
+<item>Fast  (7 km/h)</item>
+</string-array>
+<string-array name="walking_speed_values"><item>3</item>
+<item>5</item>
+<item>7</item>
+</string-array>
 </resources>

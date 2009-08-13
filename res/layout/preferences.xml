@@ -1,21 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:key="first_preferencescreen">
-    <EditTextPreference
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+	<PreferenceCategory
+		android:title="Settings">
+		<ListPreference android:key="walk_speed" 
+			android:title="Walking speed" 
+			android:entries="@array/walking_speed" 
+			android:entryValues="@array/walking_speed_values"
+			android:defaultValue="5"
+			/>
+	</PreferenceCategory>
+	<PreferenceCategory
+		android:title="Proxy settings">
+	    <CheckBoxPreference android:key="use_proxy"
+			android:title="Use HTTP proxy" /> 
+		<EditTextPreference android:key="proxy_host" android:defaultValue="127.0.0.1"
+			android:title="Proxy host" />
+		<EditTextPreference android:key="proxy_port" android:defaultValue="8080"
+			android:title="Proxy port" />
+	</PreferenceCategory>
+	<PreferenceCategory
+		android:title="Mock settings">
+		<CheckBoxPreference android:key="use_mock_location"
+			android:title="Use mock location" />
+		<EditTextPreference
             android:key="my_lat"
-            android:title="My latitude" />
-    <EditTextPreference
+            android:title="Latitude" 
+            android:defaultValue="59.9009047"
+            android:summary="Your current latitude"/>
+    	<EditTextPreference 
             android:key="my_lon"
-            android:title="My longitude" />
-           
-    <CheckBoxPreference android:key="use_proxy"
-		android:title="Use HTTP proxy" /> 
-		<PreferenceScreen android:key="second_preferencescreen"
-			android:title="Proxy settings">
-			<EditTextPreference android:key="proxy_host"
-				android:title="Proxy host" />
-			<EditTextPreference android:key="proxy_port"
-				android:title="Proxy port" />
-		</PreferenceScreen>
+            android:title="Longitude" 
+            android:defaultValue="10.843648"
+            android:summary="Your current longitude" />
+		<CheckBoxPreference android:key="use_mock_time"
+			android:title="Use mock time" />
+		<EditTextPreference
+            android:key="time"
+            android:title="Current unixtime"
+            android:defaultValue="1248987600" 
+            android:summary="Fake system time (seconds since epoch)" />
+	</PreferenceCategory>
 </PreferenceScreen> 

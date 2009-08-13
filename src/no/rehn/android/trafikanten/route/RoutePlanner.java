@@ -2,8 +2,8 @@ package no.rehn.android.trafikanten.route;
 
 import java.io.InputStream;
 import java.io.Serializable;
-import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.SocketAddress;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.net.Proxy.Type;
@@ -33,9 +33,11 @@ public class RoutePlanner {
 	static final String LOG_CATEGORY = "route-planner";
     private static final int DEFAULT_MAX_PROPOSALS = 5;
     // walks about 80 meters per minute (~5km/h)
-    static final double WALKING_KM_PER_MINUTE = 5.0 / 60;
+    static final double DEFAULT_WALKING_SPEED = 5.0;
+    double walkingSpeed = DEFAULT_WALKING_SPEED;
 
-    final String baseUrl = "http://www5.trafikanten.no/txml/";
+    final static String DEFAULT_URL = "http://www5.trafikanten.no/txml/"; 
+    final String baseUrl = "http://10.42.43.1:8080/txml/";
     final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     final TimeZone serverTimeZone;
     final SimpleDateFormat dateFormat;
@@ -43,25 +45,24 @@ public class RoutePlanner {
     public static final String TRANSPORT_SUBWAY = "T-bane";
     public static final String TRANSPORT_BUS = "Buss";
     public static final String TRANSPORT_WALK = "G\u00E5";
-    final Proxy mHttpProxy;
+    Proxy mHttpProxy = Proxy.NO_PROXY;
 
-    public RoutePlanner(Proxy proxy) {
+    public RoutePlanner() {
         serverTimeZone = TimeZone.getTimeZone("Europe/Oslo");
         dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         dateFormat.setTimeZone(serverTimeZone);
         timeFormat = new SimpleDateFormat("HH:mm");
         timeFormat.setTimeZone(serverTimeZone);
-        mHttpProxy = proxy;
     }
     
-    public RoutePlanner() {
-    	this(new Proxy(Type.DIRECT, null));
+    public void setProxyAddress(SocketAddress proxyAddress) {
+        mHttpProxy = new Proxy(Type.HTTP, proxyAddress);
     }
     
-    public RoutePlanner(InetSocketAddress proxyAddress) {
-        this(new Proxy(Type.HTTP, proxyAddress));
-    }
-
+    public void setWalkingSpeed(double speed) {
+		this.walkingSpeed = speed;
+	}
+    
     // Example:
     // http://www5.trafikanten.no/txml/?type=1&stopname=godlia&proposals=5
     public List<StopMatch> findStopByName(String stopName, int maxProposals) throws Exception {
@@ -109,10 +110,15 @@ public class RoutePlanner {
     public List<TravelProposal> findTravelBetween(String fromStop, String toStop) throws Exception {
         return findTravelBetween(fromStop, toStop, TimeUtils.newDate(), DEFAULT_MAX_PROPOSALS);
     }
+    
+    public TravelProposal createEmptyTravelProposal() {
+    	return new TravelProposal();
+    }
 
-    private InputStream openUrl(String url) throws Exception {
-        Log.i("fetch", url);
-        return new URL(url).openConnection(mHttpProxy).getInputStream();
+    private InputStream openUrl(String urlStr) throws Exception {
+        Log.i("fetch", urlStr);
+        URL url = new URL(urlStr);
+        return url.openConnection(mHttpProxy).getInputStream();
     }
 
     List<StopMatch> parseStopMatches(InputStream responseStream) throws Exception {
@@ -279,7 +285,7 @@ public class RoutePlanner {
         public int airDistance;
     }
 
-    public static class TravelProposal {
+    public class TravelProposal {
         public int id;
         public LinkedList<TravelStage> stages = new LinkedList<TravelStage>();
 
@@ -322,8 +328,8 @@ public class RoutePlanner {
         }
     }
     
-    static int getDistanceInMinutes(double kilometers) {
-        return (int) (kilometers / WALKING_KM_PER_MINUTE);
+    int getDistanceInMinutes(double kilometers) {
+        return (int) (kilometers / (walkingSpeed / 60));
     }
 
     public static class TravelStage implements Serializable {
@@ -348,7 +354,7 @@ public class RoutePlanner {
         public LatLng arrivalLocation;
     }
 
-    public static int getMinutesBetween(LatLng from, LatLng to) {
+    public int getMinutesBetween(LatLng from, LatLng to) {
         double distance = from.distance(to);
 		int minutes = getDistanceInMinutes(distance);
         Log.i(LOG_CATEGORY, distance + "km (" + minutes + "min) between " + format(from) + " and " + format(to));

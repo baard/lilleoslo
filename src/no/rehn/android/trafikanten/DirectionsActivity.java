@@ -51,8 +51,7 @@ public class DirectionsActivity extends Activity {
 
     static final int MSG_INFO = 1;
     static final int MSG_PROGRESS = 2;
-    static final int MSG_ROUTE_FOUND = 3;
-    static final int MSG_PROPOSAL_UPDATE = 4;
+    static final int MSG_PROPOSAL_UPDATE = 3;
 
     static final int MENU_PREVIOUS = 1;
     static final int MENU_NEXT = 2;
@@ -96,10 +95,6 @@ public class DirectionsActivity extends Activity {
                 break;
             case MSG_PROGRESS:
                 mProgressDialog.setMessage("Checking route " + msg.arg1 + " of " + msg.arg2);
-                break;
-            case MSG_ROUTE_FOUND:
-                Toast.makeText(DirectionsActivity.this, "Found " + msg.arg1 + " route(s)", Toast.LENGTH_SHORT)
-                        .show();
                 break;
             case MSG_PROPOSAL_UPDATE:
                 mProposalIndex = 0;
@@ -168,15 +163,16 @@ public class DirectionsActivity extends Activity {
 
 	private RoutePlanner createRoutePlanner() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean useProxy = prefs.getBoolean("use_proxy", false);
-        if (!useProxy) {
-        	return new RoutePlanner();
-        } else {
+        boolean useProxy = prefs.getBoolean("proxy_use", false);
+        RoutePlanner planner = new RoutePlanner();
+        if (useProxy) {
     		String host = prefs.getString("proxy_host", null);
     		String port = prefs.getString("proxy_port", null);
-    		InetSocketAddress proxyAddress = new InetSocketAddress(host, Integer.parseInt(port));
-    		return new RoutePlanner(proxyAddress);
+    		planner.setProxyAddress(new InetSocketAddress(host, Integer.parseInt(port)));
         }
+        String walkingSpeed = prefs.getString("walking_speed", "5");
+        planner.setWalkingSpeed(Double.parseDouble(walkingSpeed));
+        return planner;
 	}
 
     class TravelProposalRequest {
@@ -210,13 +206,13 @@ public class DirectionsActivity extends Activity {
         TravelProposal createWalkingProposal() {
             LatLng from = toLatLng(mFrom);
             LatLng to = toLatLng(mTo);
-            TravelProposal proposal = new TravelProposal();
+            TravelProposal proposal = mPlanner.createEmptyTravelProposal();
             TravelStage walkingStage = new TravelStage();
             walkingStage.departureStopName = "Current location";
             walkingStage.arrivalStopName = "Final destination";
             walkingStage.departureDate = TimeUtils.newCalendar();
             Calendar arrival = (Calendar) walkingStage.departureDate.clone();
-            int distance = RoutePlanner.getMinutesBetween(from, to);
+            int distance = mPlanner.getMinutesBetween(from, to);
             arrival.add(Calendar.MINUTE, distance);
             walkingStage.arrivalDate = arrival;
             walkingStage.transportationName = RoutePlanner.TRANSPORT_WALK;
@@ -255,7 +251,7 @@ public class DirectionsActivity extends Activity {
                 Log.i(LOG_CATEGORY, "Checking: " + permutation.mFrom.stopName + " to " + permutation.mTo.stopName);
                 mHandler.sendMessage(mHandler.obtainMessage(MSG_PROGRESS, permutationCount, totalPermutationCount));
 
-                int distanceToSource = RoutePlanner.getMinutesBetween(toLatLng(mFrom), permutation.mFrom.getLocation());
+                int distanceToSource = mPlanner.getMinutesBetween(toLatLng(mFrom), permutation.mFrom.getLocation());
                 // adjust depart-time for distance to source
                 Date earliestDeparture = new Date(TimeUtils.currentTimeMillis() + distanceToSource * 60 * 1000);
                 List<TravelProposal> travelProposals = mPlanner.findTravelBetween(permutation.mFrom.fromId,
@@ -265,8 +261,6 @@ public class DirectionsActivity extends Activity {
                     proposal.addPreStage("Current location", RoutePlanner.TRANSPORT_WALK, toLatLng(mFrom), permutation.mFrom);
                     proposal.addPostStage("Final destination", RoutePlanner.TRANSPORT_WALK, toLatLng(mTo), permutation.mTo);
                     proposals.add(proposal);
-                    // last argument is not used
-                    mHandler.sendMessage(mHandler.obtainMessage(MSG_ROUTE_FOUND, proposals.size(), 0));
                 }
                 if (permutationCount > MIN_PERMUTATIONS_TO_EVALUATE && !proposals.isEmpty()) {
                     Log.i(LOG_CATEGORY, "Breaking iteration after " + permutationCount + " permutations");

@@ -9,6 +9,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,13 +21,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class TrafikantenActivity extends Activity {
-	private static final int MENU_MOCK = 0;
 	private static final int MENU_CONFIG = 1;
 	private static final int REQUEST_CONFIG = 1;
+	private static final String LOG_CATEGORY = "Trafikanten";
 	DestinationsAdapter mDestinationsAdaptor;
 	Location mMyLocation;
 	MyLocationListener mLocationListener;
 	LocationManager mLocationService;
+	private SharedPreferences mPrefs;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -53,11 +55,13 @@ public class TrafikantenActivity extends Activity {
 				startActivity(intent);
 			}
 		});
+		mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
+		updateSettings();
 		
 		mLocationService = (LocationManager) getSystemService(LOCATION_SERVICE);
 		mLocationListener = new MyLocationListener();
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -139,23 +143,38 @@ public class TrafikantenActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0, MENU_CONFIG, 0, "Config").setIcon(android.R.drawable.ic_menu_preferences);
-		menu.add(0, MENU_MOCK, 0, "Mock location").setIcon(android.R.drawable.ic_menu_mylocation);
+		menu.add(0, MENU_CONFIG, 0, "Preferences").setIcon(android.R.drawable.ic_menu_preferences);
 		return true;
 	}
 	
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == REQUEST_CONFIG) {
-			SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-			String lat = prefs.getString("my_lat", "0.0");
-			String lon = prefs.getString("my_lon", "0.0");
+			updateSettings();
+		}
+	}
+
+	private void updateSettings() {
+		boolean useMockLocation = mPrefs.getBoolean("use_mock_location", false);
+		if (useMockLocation) {
+			String lat = mPrefs.getString("my_lat", "0.0");
+			String lon = mPrefs.getString("my_lon", "0.0");
 			Location location = new Location("MOCK");
 			location.setLatitude(Float.parseFloat(lat));
 			location.setLongitude(Float.parseFloat(lon));
 			mMyLocation = location;
-			mDestinationsAdaptor.notifyDataSetInvalidated();
+		} else {
+			mMyLocation = null;
 		}
+		mDestinationsAdaptor.notifyDataSetInvalidated();
+		boolean useMockTime = mPrefs.getBoolean("use_mock_time", false);
+		if (useMockTime) {
+			String timeString = mPrefs.getString("time", "0");
+			TimeUtils.setStaticTime(Long.parseLong(timeString) * 1000);
+		} else {
+			TimeUtils.setStaticTime(0L);
+		}
+		Log.i(LOG_CATEGORY, "Current time is now: " + TimeUtils.newDate());
 	}
 
 	@Override
@@ -164,8 +183,6 @@ public class TrafikantenActivity extends Activity {
 		case MENU_CONFIG:
 			Intent intent = new Intent(this, ConfigActivity.class);
 			startActivityForResult(intent, REQUEST_CONFIG);
-			return true;
-		case MENU_MOCK:
 			return true;
 		}
 		return false;
