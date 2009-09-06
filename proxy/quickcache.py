@@ -44,6 +44,7 @@ class CacheHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 log.write("%s: %s\n" % (digest, path))
                 log.close()
             except HTTPError, e:
+                print "fetch failed: %s" % e 
                 self.send_response(e.code)
                 return
         self.send_response(200)
