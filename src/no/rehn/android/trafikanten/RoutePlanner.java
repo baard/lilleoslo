@@ -1,7 +1,6 @@
-package no.rehn.android.trafikanten.route;
+package no.rehn.android.trafikanten;
 
 import java.io.InputStream;
-import java.io.Serializable;
 import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URL;
@@ -17,8 +16,6 @@ import java.util.TimeZone;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import no.rehn.android.trafikanten.TimeUtils;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -30,29 +27,35 @@ import android.util.Log;
 
 // maxproposals == 0 means no limit
 public class RoutePlanner {
-	static final String LOG_CATEGORY = "route-planner";
-    private static final int DEFAULT_MAX_PROPOSALS = 5;
-    // walks about 80 meters per minute (~5km/h)
-    static final double DEFAULT_WALKING_SPEED = 5.0;
-    double walkingSpeed = DEFAULT_WALKING_SPEED;
-
-    final static String DEFAULT_URL = "http://www5.trafikanten.no/txml/"; 
-    final String baseUrl = "http://10.42.43.1:8080/txml/";
-    final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    final TimeZone serverTimeZone;
-    final SimpleDateFormat dateFormat;
-    final SimpleDateFormat timeFormat;
     public static final String TRANSPORT_SUBWAY = "T-bane";
     public static final String TRANSPORT_BUS = "Buss";
     public static final String TRANSPORT_WALK = "G\u00E5";
-    Proxy mHttpProxy = Proxy.NO_PROXY;
+
+    private static final String LOG_CATEGORY = "ROUTEPLANNER";
+    private static final int DEFAULT_MAX_PROPOSALS = 5;
+    // walks about 80 meters per minute (~5km/h)
+    private static final double DEFAULT_WALKING_SPEED = 5.0;
+    private double mWalkingSpeed = DEFAULT_WALKING_SPEED;
+
+    private final static String DEFAULT_URL = "http://www5.trafikanten.no/txml/"; 
+    private Proxy mHttpProxy = Proxy.NO_PROXY;
+    private String mBaseUrl = DEFAULT_URL;
+    private final DocumentBuilderFactory mFactory = DocumentBuilderFactory.newInstance();
+    private final TimeZone mServerTimeZone;
+    private final SimpleDateFormat mDateFormat;
+    private final SimpleDateFormat mTimeFormat;
+    private long mStaticTime;
 
     public RoutePlanner() {
-        serverTimeZone = TimeZone.getTimeZone("Europe/Oslo");
-        dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        dateFormat.setTimeZone(serverTimeZone);
-        timeFormat = new SimpleDateFormat("HH:mm");
-        timeFormat.setTimeZone(serverTimeZone);
+        mServerTimeZone = TimeZone.getTimeZone("Europe/Oslo");
+        mDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        mDateFormat.setTimeZone(mServerTimeZone);
+        mTimeFormat = new SimpleDateFormat("HH:mm");
+        mTimeFormat.setTimeZone(mServerTimeZone);
+    }
+    
+    public void setStaticTime(long staticTime) {
+        mStaticTime = staticTime;
     }
     
     public void setProxyAddress(SocketAddress proxyAddress) {
@@ -60,13 +63,17 @@ public class RoutePlanner {
     }
     
     public void setWalkingSpeed(double speed) {
-		this.walkingSpeed = speed;
+		this.mWalkingSpeed = speed;
 	}
+    
+    public void setBaseUrl(String baseUrl) {
+        this.mBaseUrl = baseUrl;
+    }
     
     // Example:
     // http://www5.trafikanten.no/txml/?type=1&stopname=godlia&proposals=5
     public List<StopMatch> findStopByName(String stopName, int maxProposals) throws Exception {
-        String url = String.format(baseUrl + "?type=1&stopname=%s&proposals=%d", URLEncoder.encode(stopName), maxProposals);
+        String url = String.format(mBaseUrl + "?type=1&stopname=%s&proposals=%d", URLEncoder.encode(stopName), maxProposals);
         return parseStopMatches(openUrl(url));
     }
 
@@ -78,7 +85,7 @@ public class RoutePlanner {
     // http://www5.trafikanten.no/txml/?type=2&x=602986&y=6642023&proposals=5
     public List<StopMatch> findStopByLatLon(double latitude, double longitude, int maxProposals) throws Exception {
         UTMRef umt = new LatLng(latitude, longitude).toUTMRef();
-        String url = String.format(baseUrl + "?type=2&x=%.0f&y=%.0f&proposals=%d", umt.getEasting(), umt.getNorthing(),
+        String url = String.format(mBaseUrl + "?type=2&x=%.0f&y=%.0f&proposals=%d", umt.getEasting(), umt.getNorthing(),
                 maxProposals);
         return parseStopMatches(openUrl(url));
     }
@@ -90,31 +97,38 @@ public class RoutePlanner {
     // Example:
     // http://www5.trafikanten.no/txml/?type=3&fromid=3010012&depdate=2008-01-07&deptime=12:00&proposals=5
     public List<TravelProposal> findTravelsFrom(String stopName, Date departureAfter, int maxProposals) throws Exception {
-        String url = String.format(baseUrl + "?type=3&fromid=%s&depdate=%s&deptime=%s&proposals=%d", stopName,
-                dateFormat.format(departureAfter), timeFormat.format(departureAfter), maxProposals);
+        String url = String.format(mBaseUrl + "?type=3&fromid=%s&depdate=%s&deptime=%s&proposals=%d", stopName,
+                mDateFormat.format(departureAfter), mTimeFormat.format(departureAfter), maxProposals);
         return parseTravelProposals(openUrl(url));
     }
     
     public List<TravelProposal> findTravelsFrom(String stopName) throws Exception {
-        return findTravelsFrom(stopName, TimeUtils.newDate(), DEFAULT_MAX_PROPOSALS);
+        return findTravelsFrom(stopName, createCurrentDate(), DEFAULT_MAX_PROPOSALS);
     }
     
     // Example:
     // http://www5.trafikanten.no/txml/?type=4&fromid=3010032&toid=3010200
     public List<TravelProposal> findTravelBetween(String fromStop, String toStop, Date departureAfter, int maxProposals) throws Exception {
-        String url = String.format(baseUrl + "?type=4&fromid=%s&toid=%s&depdate=%s&deptime=%s&proposals=%d", fromStop, toStop,
-                dateFormat.format(departureAfter), timeFormat.format(departureAfter), maxProposals);
+        String url = String.format(mBaseUrl + "?type=4&fromid=%s&toid=%s&depdate=%s&deptime=%s&proposals=%d", fromStop, toStop,
+                mDateFormat.format(departureAfter), mTimeFormat.format(departureAfter), maxProposals);
         return parseTravelProposals(openUrl(url));
     }
     
     public List<TravelProposal> findTravelBetween(String fromStop, String toStop) throws Exception {
-        return findTravelBetween(fromStop, toStop, TimeUtils.newDate(), DEFAULT_MAX_PROPOSALS);
+        return findTravelBetween(fromStop, toStop, createCurrentDate(), DEFAULT_MAX_PROPOSALS);
     }
     
-    public TravelProposal createEmptyTravelProposal() {
-    	return new TravelProposal();
+    public Date createCurrentDate() {
+        return new Date(currentTimeMillis());
     }
-
+    
+    public long currentTimeMillis() {
+        if (mStaticTime > 0) {
+            return mStaticTime;
+        }
+        return System.currentTimeMillis();
+    }
+    
     private InputStream openUrl(String urlStr) throws Exception {
         Log.i("fetch", urlStr);
         URL url = new URL(urlStr);
@@ -123,7 +137,7 @@ public class RoutePlanner {
 
     List<StopMatch> parseStopMatches(InputStream responseStream) throws Exception {
         List<StopMatch> matches = new LinkedList<StopMatch>();
-        DocumentBuilder builder = factory.newDocumentBuilder();
+        DocumentBuilder builder = mFactory.newDocumentBuilder();
         Document dom = builder.parse(responseStream);
         Element root = dom.getDocumentElement();
         NodeList items = root.getElementsByTagName("StopMatch");
@@ -140,9 +154,7 @@ public class RoutePlanner {
         for (int i = 0; i < properties.getLength(); i++) {
             Node property = properties.item(i);
             String name = property.getNodeName();
-            if (name.equals("ID")) {
-                stopMatch.id = property.getFirstChild().getNodeValue();
-            } else if (name.equals("fromid")) {
+            if (name.equals("fromid")) {
                 stopMatch.fromId = property.getFirstChild().getNodeValue();
             } else if (name.equals("StopName")) {
                 stopMatch.stopName = property.getFirstChild().getNodeValue();
@@ -152,8 +164,6 @@ public class RoutePlanner {
                 stopMatch.yCoordinate = Integer.parseInt(property.getFirstChild().getNodeValue());
             } else if (name.equals("AirDistance")) {
                 stopMatch.airDistance = Integer.parseInt(property.getFirstChild().getNodeValue());
-            } else if (name.equals("District")) {
-                stopMatch.district = property.getFirstChild().getNodeValue();
             }
         }
         return stopMatch;
@@ -161,7 +171,7 @@ public class RoutePlanner {
 
     List<TravelProposal> parseTravelProposals(InputStream responseStream) throws Exception {
         List<TravelProposal> matches = new LinkedList<TravelProposal>();
-        DocumentBuilder builder = factory.newDocumentBuilder();
+        DocumentBuilder builder = mFactory.newDocumentBuilder();
         Document dom = builder.parse(responseStream);
         Element root = dom.getDocumentElement();
         NodeList items = root.getElementsByTagName("TravelProposal");
@@ -176,17 +186,15 @@ public class RoutePlanner {
         NodeList properties = node.getChildNodes();
         TravelProposal travelProposal = new TravelProposal();
         // defaults to today if not set
-        Calendar departureDate = Calendar.getInstance(serverTimeZone);
-        departureDate.setTimeInMillis(TimeUtils.currentTimeMillis());
+        Calendar departureDate = Calendar.getInstance(mServerTimeZone);
+        departureDate.setTimeInMillis(currentTimeMillis());
         // these should not default to anything
         departureDate.clear(Calendar.SECOND);
         departureDate.clear(Calendar.MILLISECOND);
         for (int i = 0; i < properties.getLength(); i++) {
             Node property = properties.item(i);
             String name = property.getNodeName();
-            if (name.equals("ID")) {
-                travelProposal.id = Integer.parseInt(property.getFirstChild().getNodeValue());
-            } else if (name.equals("DepartureTime")) {
+            if (name.equals("DepartureTime")) {
                 String[] hourMinutes = property.getFirstChild().getNodeValue().split(":");
                 departureDate.set(Calendar.HOUR_OF_DAY, Integer.parseInt(hourMinutes[0]));
                 departureDate.set(Calendar.MINUTE, Integer.parseInt(hourMinutes[1]));
@@ -225,32 +233,16 @@ public class RoutePlanner {
         for (int l = 0; l < stageProperties.getLength(); l++) {
             Node stageProperty = stageProperties.item(l);
             String stagePropertyName = stageProperty.getNodeName();
-            if (stagePropertyName.equals("ID")) {
-                stage.id = Integer.parseInt(stageProperty.getFirstChild().getNodeValue());
-            } else if (stagePropertyName.equals("DepartureStopId")) {
-                stage.departureStopId = stageProperty.getFirstChild().getNodeValue();
-            } else if (stagePropertyName.equals("DepartureStopName")) {
+            if (stagePropertyName.equals("DepartureStopName")) {
                 stage.departureStopName = stageProperty.getFirstChild().getNodeValue();
-            } else if (stagePropertyName.equals("DepartureStopWalkingDistance")) {
-                stage.departureStopWalkingDistance = Integer.parseInt(stageProperty.getFirstChild().getNodeValue());
-            } else if (stagePropertyName.equals("ArrivalStopId")) {
-                stage.arrivalStopId = stageProperty.getFirstChild().getNodeValue();
             } else if (stagePropertyName.equals("ArrivalStopName")) {
                 stage.arrivalStopName = stageProperty.getFirstChild().getNodeValue();
-            } else if (stagePropertyName.equals("ArrivalStopWalkingDistance")) {
-                stage.arrivalStopWalkingDistance = Integer.parseInt(stageProperty.getFirstChild().getNodeValue());
             } else if (stagePropertyName.equals("Destination")) {
                 stage.destination = stageProperty.getFirstChild().getNodeValue();
             } else if (stagePropertyName.equals("Line")) {
                 stage.line = stageProperty.getFirstChild().getNodeValue();
-            } else if (stagePropertyName.equals("TourID")) {
-                stage.tourId = stageProperty.getFirstChild().getNodeValue();
-            } else if (stagePropertyName.equals("TransportationID")) {
-                stage.transportationId = stageProperty.getFirstChild().getNodeValue();
             } else if (stagePropertyName.equals("TransportationName")) {
                 stage.transportationName = stageProperty.getFirstChild().getNodeValue();
-            } else if (stagePropertyName.equals("TransportationValid")) {
-                stage.transportationValid = Boolean.parseBoolean(stageProperty.getFirstChild().getNodeValue());
             } else if (stagePropertyName.equals("TravelTime")) {
             	String[] hourMinutes = stageProperty.getFirstChild().getNodeValue().split(":");
                 int minutes = 0;
@@ -269,100 +261,20 @@ public class RoutePlanner {
         return stage;
     }
 
-    public static class StopMatch {
-        public String id;
-        public String fromId;
-        public String stopName;
-        public String district;
-        public UTMRef utmRef;
-        public int xCoordinate;
-        public int yCoordinate;
-        
-        public LatLng getLocation() {
-            // 32 is special for norway, 'V' is (64 > latitude) && (latitude >= 56)
-            return new UTMRef(xCoordinate, yCoordinate, 'V', 32).toLatLng();
-        }
-        public int airDistance;
-    }
-
-    public class TravelProposal {
-        public int id;
-        public LinkedList<TravelStage> stages = new LinkedList<TravelStage>();
-
-        public Date getDeparture() {
-            return stages.getFirst().departureDate.getTime();
-        }
-        
-        public Date getArrival() {
-            return stages.getLast().arrivalDate.getTime();
-        }
-
-        public void addPreStage(String departureStopName, String transportationName, LatLng from, StopMatch arrivalStop) {
-            TravelStage firstStage = stages.getFirst();
-            TravelStage stage = new TravelStage();
-            Calendar departure = (Calendar) firstStage.departureDate.clone();
-            departure.add(Calendar.MINUTE, -getMinutesBetween(from, arrivalStop.getLocation()));
-            stage.departureDate = departure;
-            stage.departureStopName = departureStopName;
-            stage.arrivalStopName = firstStage.departureStopName;
-            stage.arrivalDate = (Calendar) firstStage.departureDate.clone();
-            stage.transportationName = transportationName;
-            stage.arrivalLocation = arrivalStop.getLocation();
-            stage.departureLocation= from;
-            stages.addFirst(stage);
-        }
-
-        public void addPostStage(String arrivalStopName, String transportationName, LatLng to, StopMatch departureStop) {
-            TravelStage lastStage = stages.getLast();
-            TravelStage stage = new TravelStage();
-            Calendar arrival = (Calendar) lastStage.arrivalDate.clone();
-            arrival.add(Calendar.MINUTE, getMinutesBetween(departureStop.getLocation(), to));
-            stage.arrivalDate = arrival;
-            stage.departureStopName = lastStage.departureStopName;
-            stage.arrivalStopName = arrivalStopName;
-            stage.departureDate = (Calendar) lastStage.arrivalDate.clone();
-            stage.transportationName = transportationName;
-            stage.arrivalLocation = to;
-            stage.departureLocation= departureStop.getLocation();
-            stages.addLast(stage);
-        }
-    }
-    
     int getDistanceInMinutes(double kilometers) {
-        return (int) (kilometers / (walkingSpeed / 60));
-    }
-
-    public static class TravelStage implements Serializable {
-        private static final long serialVersionUID = 1L;
-        public int id;
-        public String departureStopId;
-        public String departureStopName;
-        public int departureStopWalkingDistance;
-        public Calendar departureDate;
-        public String arrivalStopId;
-        public String arrivalStopName;
-        public int arrivalStopWalkingDistance;
-        public Calendar arrivalDate;
-        public String destination;
-        public String line;
-        public String tourId;
-        public String transportationId;
-        public String transportationName;
-        public boolean transportationValid;
-        
-        public LatLng departureLocation;
-        public LatLng arrivalLocation;
+        return (int) (kilometers / (mWalkingSpeed / 60));
     }
 
     public int getMinutesBetween(LatLng from, LatLng to) {
         double distance = from.distance(to);
 		int minutes = getDistanceInMinutes(distance);
-        Log.i(LOG_CATEGORY, distance + "km (" + minutes + "min) between " + format(from) + " and " + format(to));
+        Log.i(LOG_CATEGORY, distance + "km (" + minutes + "min) between " + from + " and " + to);
 		return minutes;
     }
 
-	private static String format(LatLng from) {
-		String frm = from.getLat() + ", " + from.getLng();
-		return frm;
-	}
+    public Calendar createCalendar() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(currentTimeMillis());
+        return calendar;
+    }
 }

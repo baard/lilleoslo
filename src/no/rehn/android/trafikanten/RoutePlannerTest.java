@@ -1,10 +1,8 @@
-package no.rehn.android.trafikanten.route;
+package no.rehn.android.trafikanten;
 
 import java.util.List;
 
 import junit.framework.TestCase;
-import no.rehn.android.trafikanten.route.RoutePlanner.StopMatch;
-import no.rehn.android.trafikanten.route.RoutePlanner.TravelProposal;
 
 public class RoutePlannerTest extends TestCase {
     RoutePlanner routePlanner = new RoutePlanner();
@@ -12,7 +10,6 @@ public class RoutePlannerTest extends TestCase {
         List<StopMatch> stops = routePlanner.findStopByLatLon(59.902849, 10.841138);
         assertFalse(stops.isEmpty());
         StopMatch skoeyenLia = stops.get(0);
-        assertEquals("0", skoeyenLia.id);
         assertEquals("3011324", skoeyenLia.fromId);
         assertEquals("Skøyenlia", skoeyenLia.stopName);
         assertEquals(602986, skoeyenLia.xCoordinate);
@@ -24,10 +21,8 @@ public class RoutePlannerTest extends TestCase {
         List<StopMatch> stops = routePlanner.findStopByName("Godlia");
         assertFalse(stops.isEmpty());
         StopMatch godlia = stops.get(0);
-        assertEquals("0", godlia.id);
         assertEquals("03011310", godlia.fromId);
         assertEquals("Godlia", godlia.stopName);
-        assertEquals("Oslo", godlia.district);
         assertEquals(602679, godlia.xCoordinate);
         assertEquals(6642472, godlia.yCoordinate);
         assertEquals(0, godlia.airDistance);
@@ -47,10 +42,8 @@ public class RoutePlannerTest extends TestCase {
         List<StopMatch> stops = routePlanner.parseStopMatches(getClass().getResourceAsStream("stopmatch-sample.xml"));
         assertEquals(1, stops.size());
         StopMatch godlia = stops.get(0);
-        assertEquals("0", godlia.id);
         assertEquals("03011310", godlia.fromId);
         assertEquals("Godlia", godlia.stopName);
-        assertEquals("Oslo", godlia.district);
         assertEquals(602679, godlia.xCoordinate);
         assertEquals(6642472, godlia.yCoordinate);
         assertEquals(0, godlia.airDistance);

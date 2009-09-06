@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string name="analyzing_arrivals">Sjekker avganger...</string>
+<string name="analyzing_departures">Sjekker mål...</string>
+<string name="checking_route">Sjekker rute %s av %s</string>
+<string name="proposal_title">%s - reisetid %d:%02d</string>
+<string name="no_route">Ingen ruter funnet</string>
+<string name="calculating_routes">Sjekker ruter</string>
+<string name="please_wait">Vennligst vent...</string>
+<string name="unexpected_error">Ukjent feil</string>
+<string name="current_location">Startposisjon</string>
+<string name="final_destination">Endelig posisjon</string>
+<string name="walk_km_estimated">Gå %.1fkm (beregnet)</string>
+<string name="walk_estimated">Gå (beregnet)</string>
+<string name="subway">T-bane</string>
+<string name="bus">Buss</string>
+<string name="previous_route">Forrige rute</string>
+<string name="next_route">Neste rute</string>
+
+<string name="app_name">Lille Oslo</string>
+<string name="navigate_home">Directions</string>
+<string-array name="walking_speed"><item>Slow (3 km/h)</item>
+<item>Normal  (5 km/h)</item>
+<item>Fast  (7 km/h)</item>
+</string-array>
+<string-array name="walking_speed_values"><item>3</item>
+<item>5</item>
+<item>7</item>
+</string-array>
+</resources>

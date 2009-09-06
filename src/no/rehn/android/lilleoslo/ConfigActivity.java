@@ -1,11 +1,11 @@
-package no.rehn.android.trafikanten;
+package no.rehn.android.lilleoslo;
 
+import no.rehn.android.trafikanten.R;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.PreferenceActivity;
 import android.text.method.DigitsKeyListener;
 
-//TODO implement
 public class ConfigActivity extends PreferenceActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
