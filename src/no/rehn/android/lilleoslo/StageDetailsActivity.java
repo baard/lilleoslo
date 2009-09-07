@@ -37,7 +37,6 @@ public class StageDetailsActivity extends MapActivity {
         super.onPause();
         if (mLocationOverlay != null) {
             mLocationOverlay.disableMyLocation();
-            mLocationOverlay.disableCompass();
         }
     }
     
@@ -45,15 +44,10 @@ public class StageDetailsActivity extends MapActivity {
     protected void onResume() {
         super.onResume();
         if (mLocationOverlay != null) {
-            enableMyLocationOverlay();
+            mLocationOverlay.enableMyLocation();
         }
     }
 	
-    private void enableMyLocationOverlay() {
-        mLocationOverlay.enableCompass();
-        mLocationOverlay.enableMyLocation();        
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,7 +88,7 @@ public class StageDetailsActivity extends MapActivity {
         overlays.add(createItemOverlay(R.drawable.red_pin, from, mStage.departureStopName));
         overlays.add(createItemOverlay(R.drawable.green_pin, to, mStage.arrivalStopName));
         mLocationOverlay = new MyLocationOverlay(this, mapView);
-        enableMyLocationOverlay();
+        mLocationOverlay.enableMyLocation();
         overlays.add(mLocationOverlay);
         
         int spanLat = Math.abs(from.getLatitudeE6() - to.getLatitudeE6());

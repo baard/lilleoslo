@@ -52,10 +52,6 @@ public class SelectDestinationActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        mLocationListener = new MyLocationListener();
-        mLocationService = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-        updateCurrentLocationFromPreferences();
         mStorage = new DestinationDbHelper(this);
         
         ListView list = (ListView) findViewById(R.id.destinations);
@@ -68,26 +64,34 @@ public class SelectDestinationActivity extends Activity {
                 Destination destination = mDestinationsAdaptor
                         .getItem(position);
 
-                Intent intent = new Intent(SelectDestinationActivity.this,
-                        DirectionsActivity.class);
-                intent.putExtra(DirectionsActivity.PARAMETER_FROM, mMyLocation);
-                intent.putExtra(DirectionsActivity.PARAMETER_TO, destination.location);
-                intent.putExtra(DirectionsActivity.PARAMETER_TITLE, destination.name);
-                startActivity(intent);
+                findDirections(destination);
             }
         });
         registerForContextMenu(list);
-        updateList();
+        mLocationListener = new MyLocationListener();
+        mLocationService = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        updateCurrentLocationFromPreferences();
     }
-    
+
+    private void findDirections(Destination destination) {
+        Intent intent = new Intent(SelectDestinationActivity.this,
+                DirectionsActivity.class);
+        intent.putExtra(DirectionsActivity.PARAMETER_FROM, mMyLocation);
+        intent.putExtra(DirectionsActivity.PARAMETER_TO, destination.location);
+        intent.putExtra(DirectionsActivity.PARAMETER_TITLE, destination.name);
+        startActivity(intent);
+    }
+
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-        menu.add("Delete");
+        menu.add("Find Route");
+        menu.add("Delete Destination");
     }
     
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        if ("Delete".equals(item.getTitle())) {
+        if ("Delete Destination".equals(item.getTitle())) {
             AdapterView.AdapterContextMenuInfo menuInfo;
             try {
                 menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -98,6 +102,15 @@ public class SelectDestinationActivity extends Activity {
             mStorage.remove(destination);
             updateList();
             return true;
+        } else if ("Find Route".equals(item.getTitle())) {
+            AdapterView.AdapterContextMenuInfo menuInfo;
+            try {
+                menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            } catch (ClassCastException e) {
+                return false;
+            }
+            Destination destination = mDestinationsAdaptor.getItem(menuInfo.position);
+            findDirections(destination);
         }
         return false;
         
@@ -126,7 +139,7 @@ public class SelectDestinationActivity extends Activity {
                         .findViewById(R.id.destinationDistance);
                 if (mMyLocation != null) {
                     double km = o.location.distanceTo(mMyLocation) / 1000;
-                    distance.setText(String.format("%.1fkm", km));
+                    distance.setText(String.format("%.1f km", km));
                 } else {
                     distance.setText("Waiting for location..");
                 }
@@ -159,7 +172,7 @@ public class SelectDestinationActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_TRAVEL, 0, "Travel").setIcon(android.R.drawable.ic_menu_directions);
+        menu.add(0, MENU_TRAVEL, 0, "Add Contacts").setIcon(android.R.drawable.ic_menu_add);
         menu.add(0, MENU_CONFIG, 0, "Preferences").setIcon(android.R.drawable.ic_menu_preferences);
         return true;
     }
@@ -201,6 +214,8 @@ public class SelectDestinationActivity extends Activity {
                 result.moveToPosition(position);
                 String address = result.getString(result.getColumnIndexOrThrow(Contacts.ContactMethods.DATA));
                 String name = result.getString(result.getColumnIndexOrThrow(Contacts.ContactMethods.NAME));
+                int type = result.getInt(result.getColumnIndexOrThrow(Contacts.ContactMethods.TYPE));
+                String typeName = getTypeName(type);
                 Geocoder geocoder = new Geocoder(SelectDestinationActivity.this);
                 try {
                     List<Address> addresses = geocoder.getFromLocationName(address, 1);
@@ -210,14 +225,10 @@ public class SelectDestinationActivity extends Activity {
                     //TODO display list of possible locations
                     Address location = addresses.get(0);
                     Location destination = createLocation(location.getLatitude(), location.getLongitude());
-                    mStorage.save(new Destination(name, destination));
+                    Destination dest = new Destination(name + typeName, destination);
+                    mStorage.save(dest);
                     updateList();
-                    Intent intent = new Intent(SelectDestinationActivity.this,
-                            DirectionsActivity.class);
-                    intent.putExtra(DirectionsActivity.PARAMETER_FROM, mMyLocation);
-                    intent.putExtra(DirectionsActivity.PARAMETER_TO, destination);
-                    intent.putExtra(DirectionsActivity.PARAMETER_TITLE, name);
-                    startActivity(intent);
+                    //findDirections(dest);
                     
                 } catch (IOException e) {
                     Log.e(LOG_CATEGORY, "lookup failed", e);
@@ -227,6 +238,17 @@ public class SelectDestinationActivity extends Activity {
             }
         });
         dialog.show();
+    }
+
+    private String getTypeName(int type) {
+        switch (type) {
+        case Contacts.ContactMethods.TYPE_HOME:
+            return " at home";
+        case Contacts.ContactMethods.TYPE_WORK:
+            return " at work";
+        default:
+            return "";
+        }
     }
 
     private Location createLocation(double lat, double lon) {
@@ -250,12 +272,11 @@ public class SelectDestinationActivity extends Activity {
     }
 
     private void updateList() {
-        if (mDestinationsAdaptor != null) {
-            mDestinationsAdaptor.clear();
-            for (Destination destination : mStorage.getAllEntries()) {
-                mDestinationsAdaptor.add(destination);
-            }
-            mDestinationsAdaptor.notifyDataSetInvalidated();
+        List<Destination> allEntries = mStorage.getAllEntries();
+        mDestinationsAdaptor.clear();
+        for (Destination destination : allEntries) {
+            mDestinationsAdaptor.add(destination);
         }
+        mDestinationsAdaptor.notifyDataSetInvalidated();
     }
 }

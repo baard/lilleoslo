@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="?android:attr/listPreferredItemHeight">
 	<TextView android:id="@+id/name" android:text="Christine" android:layout_width="fill_parent"
-	 android:layout_height="wrap_content"/>
+	 android:layout_height="wrap_content" android:textSize="20dip"/>
     <TextView android:id="@+id/address" android:text="Mek. veien 17" android:layout_width="fill_parent"
      android:layout_height="wrap_content"/>
 </LinearLayout>
