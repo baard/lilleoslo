@@ -14,6 +14,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Contacts;
@@ -51,6 +52,7 @@ public class SelectDestinationActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        setTitle(R.string.destinations);
         mPrefs = PreferenceManager.getDefaultSharedPreferences(this);
         mStorage = new DestinationDbHelper(this);
         
@@ -70,7 +72,7 @@ public class SelectDestinationActivity extends Activity {
         registerForContextMenu(list);
         mLocationListener = new MyLocationListener();
         mLocationService = (LocationManager) getSystemService(LOCATION_SERVICE);
-
+        initLocationListener();
         updateCurrentLocationFromPreferences();
     }
 
@@ -86,6 +88,7 @@ public class SelectDestinationActivity extends Activity {
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         menu.add("Find Route");
+        menu.add("Show on map");
         menu.add("Delete Destination");
     }
     
@@ -111,6 +114,17 @@ public class SelectDestinationActivity extends Activity {
             }
             Destination destination = mDestinationsAdaptor.getItem(menuInfo.position);
             findDirections(destination);
+        } else if ("Show on map".equals(item.getTitle())) {
+            AdapterView.AdapterContextMenuInfo menuInfo;
+            try {
+                menuInfo = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+            } catch (ClassCastException e) {
+                return false;
+            }
+            Destination destination = mDestinationsAdaptor.getItem(menuInfo.position);
+            Intent mapIntent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("geo:"
+                    + destination.location.getLatitude() + "," + destination.location.getLongitude()));
+            startActivity(mapIntent);
         }
         return false;
         
@@ -152,7 +166,11 @@ public class SelectDestinationActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        mLocationService.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, mLocationListener);
+        initLocationListener();
+    }
+
+    private void initLocationListener() {
+        mLocationService.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 5, mLocationListener);        
     }
 
     @Override

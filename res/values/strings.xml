@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+<string name="destinations">Available Destinations</string>
 <string name="analyzing_arrivals">Analyzing arrivals...</string>
 <string name="analyzing_departures">Analyzing departures...</string>
 <string name="checking_route">Checking route %s of %s</string>

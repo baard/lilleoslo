@@ -8,7 +8,7 @@
 		android:layout_height="fill_parent">
 		<com.google.android.maps.MapView
 			android:id="@+id/stageMap" android:layout_width="fill_parent"
-			android:layout_height="fill_parent" android:apiKey="0-AUdpVltjQqi5ypQDAS2hz_OOK8-J-8wjEnsdw" 
+			android:layout_height="fill_parent" android:apiKey="0-AUdpVltjQpQOBsu80F15_pDr3OQYY2ZD8wiFA" 
 			android:enabled="true"
 	        android:clickable="true"
 			/>
